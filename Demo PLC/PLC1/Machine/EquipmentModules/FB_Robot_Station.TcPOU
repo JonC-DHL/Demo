@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.16">
-  <POU Name="FB_Station_1" Id="{6d6535f1-e0c3-4476-bbd3-1910d912960e}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FB_Station_1 EXTENDS FB_PackML_BaseModule
+  <POU Name="FB_Robot_Station" Id="{6d6535f1-e0c3-4476-bbd3-1910d912960e}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Robot_Station EXTENDS FB_PackML_BaseModule
 VAR
 	// Sub module definitions here
 
@@ -13,10 +13,10 @@ VAR
 	Sensor : FB_DigitalSensor		:= (Name := 'Sensor');
 
 	//Alarms for this module
-	UnwindAlarms : ARRAY[1..UNWIND_ALARM_COUNT] OF FB_TcAlarm;
+	RobotAlarms : ARRAY[1..ROBOT_ALARM_COUNT] OF FB_TcAlarm;
 
 	//Data for recipe
-	Recipe : ST_UnwindRecipe;
+	Recipe : ST_RobotRecipe;
 
 	(*Parameters from PackTags for module
     //_Param  : ARRAY[1..10] OF ST_Descriptor2;*)
@@ -31,7 +31,7 @@ VAR CONSTANT
 	FAULT : INT := 1;
 
 	//Alarms
-	UNWIND_ALARM_COUNT : INT := 5;
+	ROBOT_ALARM_COUNT : INT := 5;
 END_VAR
 
 //Simulation variables for messaging
@@ -87,7 +87,7 @@ SUPER^.Aborting();]]></ST>
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
-          <ST><![CDATA[Recipe.Axis.Acceleration := Acceleration;]]></ST>
+          <ST><![CDATA[//Recipe.Axis.Acceleration := Acceleration;]]></ST>
         </Implementation>
       </Set>
     </Property>
@@ -103,7 +103,7 @@ END_VAR]]></Declaration>
 
 	10:
 		//Reset any alarms that get latched
-		UnwindAlarms[E_Unwind.StartTimeout].Clear(0, 0);
+		RobotAlarms[E_Unwind.StartTimeout].Clear(0, 0);
 		SequenceState := SequenceState + 10;
 
 	20:
@@ -128,7 +128,7 @@ VAR_INPUT
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[// Add your event creation here
-F_CreateAllEventsInClass(Alarms		:= UnwindAlarms,
+F_CreateAllEventsInClass(Alarms		:= RobotAlarms,
 						 ClassSize	:= SIZEOF(TC_EVENTS.Unwind),
 						 pInitEvent := ADR(TC_EVENTS.Unwind.InitReferenceEvent),
 						 Prefix		:= Name);
@@ -153,12 +153,12 @@ SUPER^.CyclicLogic();
 fbControlSourceHMI.CyclicLogic();
 
 //Set the current alarm severity for this module
-_CurrentAlarmSeverity := F_GetMaxSeverityRaised(Alarms := UnwindAlarms, CurrentSeverity := _CurrentAlarmSeverity);
+_CurrentAlarmSeverity := F_GetMaxSeverityRaised(Alarms := RobotAlarms, CurrentSeverity := _CurrentAlarmSeverity);
 IF _CurrentAlarmSeverity >= TcEventSeverity.Error THEN
 	ChangeState(E_PMLCommand.ePMLCommand_Abort);
 END_IF
 
-CyclicLogic_Simulation();]]></ST>
+//CyclicLogic_Simulation();]]></ST>
       </Implementation>
     </Method>
     <Method Name="CyclicLogic_Simulation" Id="{8eedeb21-1d1c-4217-b076-15aeb8317be9}" FolderPath="Methods\">
@@ -273,8 +273,8 @@ VAR_INPUT
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[//Recipe
-Recipe.Axis.Velocity	 := 100;
-Recipe.Axis.Acceleration := 1000;
+//Recipe.Axis.Velocity	 := 100;
+//Recipe.Axis.Acceleration := 1000;
 
 //Report
 _Report[FAULT].ID	:= TO_DINT(3 * 10 + 1);
@@ -329,8 +329,8 @@ END_VAR]]></Declaration>
 					SequenceState := SequenceState + 10;
 		//		END_IF
 
-				IF StartTimer.Q AND NOT UnwindAlarms[E_Unwind.StartTimeout].bRaised THEN
-					RaiseAlarm2Args(UnwindAlarms[E_Unwind.StartTimeout], '', '');
+				IF StartTimer.Q AND NOT RobotAlarms[E_Unwind.StartTimeout].bRaised THEN
+					RaiseAlarm2Args(RobotAlarms[E_Unwind.StartTimeout], '', '');
 					SequenceState := SequenceState + 10;
 				END_IF
 
@@ -384,57 +384,57 @@ SUPER^.Stopping();]]></ST>
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
-          <ST><![CDATA[Recipe.Axis.Velocity := Velocity;]]></ST>
+          <ST><![CDATA[//Recipe.Axis.Velocity := Velocity;]]></ST>
         </Implementation>
       </Set>
     </Property>
-    <LineIds Name="FB_Station_1">
+    <LineIds Name="FB_Robot_Station">
       <LineId Id="2" Count="0" />
     </LineIds>
-    <LineIds Name="FB_Station_1.Aborting">
+    <LineIds Name="FB_Robot_Station.Aborting">
       <LineId Id="3" Count="23" />
       <LineId Id="2" Count="0" />
     </LineIds>
-    <LineIds Name="FB_Station_1.Acceleration.Set">
+    <LineIds Name="FB_Robot_Station.Acceleration.Set">
       <LineId Id="2" Count="0" />
     </LineIds>
-    <LineIds Name="FB_Station_1.Clearing">
+    <LineIds Name="FB_Robot_Station.Clearing">
       <LineId Id="3" Count="22" />
       <LineId Id="2" Count="0" />
     </LineIds>
-    <LineIds Name="FB_Station_1.CreateEvents">
+    <LineIds Name="FB_Robot_Station.CreateEvents">
       <LineId Id="3" Count="6" />
       <LineId Id="2" Count="0" />
     </LineIds>
-    <LineIds Name="FB_Station_1.CyclicLogic">
+    <LineIds Name="FB_Robot_Station.CyclicLogic">
       <LineId Id="3" Count="15" />
       <LineId Id="2" Count="0" />
     </LineIds>
-    <LineIds Name="FB_Station_1.CyclicLogic_Simulation">
+    <LineIds Name="FB_Robot_Station.CyclicLogic_Simulation">
       <LineId Id="3" Count="21" />
       <LineId Id="2" Count="0" />
     </LineIds>
-    <LineIds Name="FB_Station_1.Initialize">
+    <LineIds Name="FB_Robot_Station.Initialize">
       <LineId Id="3" Count="60" />
       <LineId Id="2" Count="0" />
     </LineIds>
-    <LineIds Name="FB_Station_1.Initialize_TagData">
+    <LineIds Name="FB_Robot_Station.Initialize_TagData">
       <LineId Id="3" Count="6" />
       <LineId Id="2" Count="0" />
     </LineIds>
-    <LineIds Name="FB_Station_1.RaiseAlarm2Args">
+    <LineIds Name="FB_Robot_Station.RaiseAlarm2Args">
       <LineId Id="3" Count="2" />
       <LineId Id="2" Count="0" />
     </LineIds>
-    <LineIds Name="FB_Station_1.Starting">
+    <LineIds Name="FB_Robot_Station.Starting">
       <LineId Id="3" Count="35" />
       <LineId Id="2" Count="0" />
     </LineIds>
-    <LineIds Name="FB_Station_1.Stopping">
+    <LineIds Name="FB_Robot_Station.Stopping">
       <LineId Id="3" Count="22" />
       <LineId Id="2" Count="0" />
     </LineIds>
-    <LineIds Name="FB_Station_1.Velocity.Set">
+    <LineIds Name="FB_Robot_Station.Velocity.Set">
       <LineId Id="2" Count="0" />
     </LineIds>
   </POU>

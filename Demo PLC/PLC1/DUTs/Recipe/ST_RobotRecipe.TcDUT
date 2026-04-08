@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.16">
+  <DUT Name="ST_RobotRecipe" Id="{a0627452-bd85-4c46-89a6-5df2b1f1f844}">
+    <Declaration><![CDATA[TYPE ST_RobotRecipe :
+	STRUCT
+		Velocity	 : LREAL;
+		Acceleration : LREAL;
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

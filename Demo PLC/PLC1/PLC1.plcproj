@@ -22,6 +22,9 @@
     <Compile Include="DUTs\Recipe\ST_AxisRecipe.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DUTs\Recipe\ST_RobotRecipe.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DUTs\Recipe\ST_MotionLinxAxisRecipe.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -133,7 +136,7 @@
     <Compile Include="Machine\EquipmentModules\FB_Station_3.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Machine\EquipmentModules\FB_Station_1.TcPOU">
+    <Compile Include="Machine\EquipmentModules\FB_Robot_Station.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Machine\EquipmentModules\No Used\FB_PullWheel.TcPOU">
@@ -155,6 +158,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Machine\HMI Connections\FB_ControlSource_HMI_Machine.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\SafetyModules\FB_Safety_Module.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Machine\Templates\FB_EquipmentModuleTemplate.TcPOU">
@@ -197,6 +203,7 @@
     <Folder Include="Machine\EquipmentSubModules" />
     <Folder Include="Machine\HMI Connections" />
     <Folder Include="Machine\Events" />
+    <Folder Include="Machine\SafetyModules" />
     <Folder Include="Machine\Templates" />
     <Folder Include="Machine\VISUs" />
     <Folder Include="Machine\VISUs\VisuOjects" />
@@ -209,6 +216,9 @@
     <PlaceholderReference Include="SPT Components">
       <DefaultResolution>SPT Components, * (Beckhoff Automation LLC)</DefaultResolution>
       <Namespace>SPT_Components</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="SPT Diagnostic">
+      <DefaultResolution>SPT Diagnostic, * (Beckhoff Automation LLC)</DefaultResolution>
     </PlaceholderReference>
     <PlaceholderReference Include="SPT Event Logger">
       <DefaultResolution>SPT Event Logger, * (Beckhoff Automation LLC)</DefaultResolution>
@@ -468,6 +478,12 @@
       <ExcludeFromBuild>true</ExcludeFromBuild>
     </SubObject>
     <SubObject Include="FB_MotionlinxAI_Controller.stop">
+      <ExcludeFromBuild>true</ExcludeFromBuild>
+    </SubObject>
+    <SubObject Include="FB_Robot_Station.CyclicLogic_Simulation">
+      <ExcludeFromBuild>true</ExcludeFromBuild>
+    </SubObject>
+    <SubObject Include="FB_Safety_Module.CyclicLogic_Simulation">
       <ExcludeFromBuild>true</ExcludeFromBuild>
     </SubObject>
     <SubObject Include="FB_Single_Drive_Outfeed_Sensor.CyclicLogic_Simulation">

@@ -2,6 +2,29 @@
 <TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4024.71">
 	<DataTypes>
 		<DataType>
+			<Name GUID="{293E98ED-62EF-D5B9-999E-70A384956D89}" Namespace="SPT_Diagnostic" AutoDeleteType="true">ST_SafetyStateDiag</Name>
+			<BitSize>24</BitSize>
+			<SubItem>
+				<Name>State</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>Diag</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+				<Comment><![CDATA[ **NOT PRESENT ON AND/OR FBs ** For components with USINT as Diag connection, connect first 8 Bit of UINT Diag. Inherited FB is evaluating correct length.]]></Comment>
+				<BitSize>16</BitSize>
+				<BitOffs>8</BitOffs>
+			</SubItem>
+			<Properties>
+				<Property>
+					<Name>pack_mode</Name>
+					<Value>1</Value>
+				</Property>
+			</Properties>
+		</DataType>
+		<DataType>
 			<Name GUID="{CBC83B73-B816-4597-A9E5-2B03263CA131}" Namespace="MC" TcBaseType="true" HideType="true" IecDeclaration="DWORD;">NCTOPLC_AXIS_REF_STATE</Name>
 			<BitSize>32</BitSize>
 			<SubItem>
@@ -1023,11 +1046,36 @@ External Setpoint Generation:
 		</Motion>
 		<Plc>
 			<Project GUID="{0E250E61-BC3B-478D-8CD8-ACAB8830117A}" Name="PLC1" PrjFilePath="PLC1\PLC1.plcproj" TmcFilePath="PLC1\PLC1.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" CopyTmcToTarget="true" CopyTpyToTarget="false" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PLC1\PLC1.tmc" TmcHash="{D58F5DB9-9986-B35A-9542-07FAE6C72AF7}">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PLC1\PLC1.tmc" TmcHash="{4839F078-3E0E-1879-D76C-C7B079E91B80}">
 					<Name>PLC1 Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="1">
 						<Name>PlcTask Inputs</Name>
+						<Var>
+							<Name>MAIN.Demo_System.Safety_SubModule.Reset_PB.HardwareInput</Name>
+							<Comment><![CDATA[ Hardware input bit from the physical sensor]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Demo_System.Safety_SubModule.SafetyGroup_IO.InfoData</Name>
+							<Type GUID="{293E98ED-62EF-D5B9-999E-70A384956D89}" Namespace="SPT_Diagnostic">ST_SafetyStateDiag</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Demo_System.Safety_SubModule.SafetyGroup_ESTOP.InfoData</Name>
+							<Type GUID="{293E98ED-62EF-D5B9-999E-70A384956D89}" Namespace="SPT_Diagnostic">ST_SafetyStateDiag</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Demo_System.Safety_SubModule.SafetyOutput.InfoData</Name>
+							<Type GUID="{293E98ED-62EF-D5B9-999E-70A384956D89}" Namespace="SPT_Diagnostic">ST_SafetyStateDiag</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Demo_System.Safety_SubModule.SafetyInput.InfoData</Name>
+							<Type GUID="{293E98ED-62EF-D5B9-999E-70A384956D89}" Namespace="SPT_Diagnostic">ST_SafetyStateDiag</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Demo_System.Safety_SubModule.SafetyEstop.InfoData</Name>
+							<Type GUID="{293E98ED-62EF-D5B9-999E-70A384956D89}" Namespace="SPT_Diagnostic">ST_SafetyStateDiag</Type>
+						</Var>
 						<Var>
 							<Name>MAIN.Demo_System.PullWheels.LeftPullWheel.BasicSlaveAxis._Axis.NcToPlc</Name>
 							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
@@ -1087,9 +1135,34 @@ External Setpoint Generation:
 							<Comment><![CDATA[ Hardware input bit from the physical sensor]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
+						<Var>
+							<Name>MAIN.Demo_System.Station_6.Sensor.HardwareInput</Name>
+							<Comment><![CDATA[ Hardware input bit from the physical sensor]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
 					</Vars>
 					<Vars VarGrpType="2" AreaNo="1">
 						<Name>PlcTask Outputs</Name>
+						<Var>
+							<Name>MAIN.Demo_System.Safety_SubModule.SafetyGroupAutoReset.Reset</Name>
+							<Comment><![CDATA[ Reset Bit to connecto to Safety]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Demo_System.Safety_SubModule.SafetyGroup_IO.Run</Name>
+							<Comment><![CDATA[ Safety Group Connections]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Demo_System.Safety_SubModule.SafetyGroup_ESTOP.Run</Name>
+							<Comment><![CDATA[ Safety Group Connections]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Demo_System.Safety_SubModule.SafetyReset.Reset</Name>
+							<Comment><![CDATA[ Reset Bit to connecto to Safety]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
 						<Var>
 							<Name>MAIN.Demo_System.PullWheels.LeftPullWheel.BasicSlaveAxis._Axis.PlcToNc</Name>
 							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
@@ -1207,6 +1280,9 @@ External Setpoint Generation:
 				</Instance>
 			</Project>
 		</Plc>
+		<Safety>
+			<Project File="TwinSAFE Project.xti"/>
+		</Safety>
 		<Io/>
 	</Project>
 	<Mappings>
