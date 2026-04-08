@@ -1,0 +1,441 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.16">
+  <POU Name="FB_Station_3" Id="{185c3fdb-d981-4319-95eb-3ab3d8cea855}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Station_3 EXTENDS FB_PackML_BaseModule
+VAR
+	// Sub module definitions here
+
+	// List of sub modules
+	ipSubModules_Init : ARRAY[1..Parameters_PackML_Base.MAX_NO_OF_SUBMODULES] OF I_PackML_BaseModule := [];
+
+	// Component definitions here
+//	Axis   : FB_Component_BasicAxis := (Name := 'Axis');
+	Sensor : FB_DigitalSensor		:= (Name := 'Sensor');
+
+	//Alarms for this module
+	UnwindAlarms : ARRAY[1..UNWIND_ALARM_COUNT] OF FB_TcAlarm;
+
+	//Data for recipe
+	Recipe : ST_UnwindRecipe;
+
+	(*Parameters from PackTags for module
+    //_Param  : ARRAY[1..10] OF ST_Descriptor2;*)
+	_Report : ARRAY[1..10] OF ST_Descriptor2;
+
+	//HMI Control for EM
+	fbControlSourceHMI : FB_ControlSource_HMI;
+END_VAR
+
+VAR CONSTANT
+	//reports 
+	FAULT : INT := 1;
+
+	//Alarms
+	UNWIND_ALARM_COUNT : INT := 5;
+END_VAR
+
+//Simulation variables for messaging
+VAR
+	ErrorInput : BOOL;
+	WarnInput  : BOOL;
+	InfoInput  : BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="I_CyclicFB" Id="{1c69f2fc-abeb-4219-a3a1-a6f31aa9fbf7}" />
+    <Folder Name="Methods" Id="{21e0634e-f229-4a1d-93ad-e3a42ff81a94}">
+      <Folder Name="Acting States" Id="{cf88ee4d-1095-4ff4-b4ef-556c8934e98a}" />
+      <Folder Name="AlarmHandling" Id="{c56eb22e-0616-497e-aebb-9dbd6a7881a1}" />
+    </Folder>
+    <Folder Name="Properties" Id="{63a04038-94ba-4a68-bf27-c84521cec69e}" />
+    <Method Name="Aborting" Id="{12ec2c20-5f19-459b-a9a0-a9d9fac99b00}" FolderPath="Methods\Acting States\">
+      <Declaration><![CDATA[METHOD PROTECTED Aborting
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE SequenceState OF
+	0:
+		NoStateTasksToComplete := FALSE;
+		SequenceState		   := SequenceState + 10;
+
+	10:
+	//	Axis.Stop();
+	//	IF Axis.Stopped THEN
+			SequenceState := SequenceState + 10;
+	//	END_IF
+
+	20:
+		// Disable here
+	//	Axis.Disable();
+
+		// Check not enabled here
+	//	IF NOT Axis.Enabled THEN
+			SequenceState := SequenceState + 10;
+	//	END_IF
+
+	30:
+		StateTasksComplete := TRUE;
+END_CASE
+
+SUPER^.Aborting();]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Acceleration" Id="{27fc9f20-0691-43c3-96db-1cdaf345ac9e}" FolderPath="Properties\">
+      <Declaration><![CDATA[PROPERTY Acceleration : LREAL]]></Declaration>
+      <Set Name="Set" Id="{4e7136e3-b465-42e0-b2ab-66c31b5831db}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Recipe.Axis.Acceleration := Acceleration;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="Clearing" Id="{2cb6738d-289c-4761-a152-e411dbcfc49b}" FolderPath="Methods\Acting States\">
+      <Declaration><![CDATA[METHOD PROTECTED Clearing
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE SequenceState OF
+	0:
+		NoStateTasksToComplete := FALSE;
+		SequenceState		   := SequenceState + 10;
+
+	10:
+		//Reset any alarms that get latched
+		UnwindAlarms[E_Unwind.StartTimeout].Clear(0, 0);
+		SequenceState := SequenceState + 10;
+
+	20:
+		// Enable here
+	//	Axis.Enable();
+
+		// Check enabled here
+	//	IF Axis.Enabled THEN
+			SequenceState := SequenceState + 10;
+	//	END_IF
+
+	30:
+		StateTasksComplete := TRUE;
+END_CASE
+
+SUPER^.Clearing();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CreateEvents" Id="{5c687a3c-906f-4ae2-87fe-5579315ee5bc}" FolderPath="Methods\">
+      <Declaration><![CDATA[METHOD PROTECTED CreateEvents
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Add your event creation here
+F_CreateAllEventsInClass(Alarms		:= UnwindAlarms,
+						 ClassSize	:= SIZEOF(TC_EVENTS.Unwind),
+						 pInitEvent := ADR(TC_EVENTS.Unwind.InitReferenceEvent),
+						 Prefix		:= Name);
+
+// Super call to base
+SUPER^.CreateEvents();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CyclicLogic" Id="{7be60dbb-b0d2-4b08-9679-30dea2f0f7e2}" FolderPath="I_CyclicFB\">
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT _InitComplete THEN
+	_InitComplete := Initialize();
+	RETURN;
+END_IF
+
+SUPER^.CyclicLogic();
+
+//HMI control for EM
+fbControlSourceHMI.CyclicLogic();
+
+//Set the current alarm severity for this module
+_CurrentAlarmSeverity := F_GetMaxSeverityRaised(Alarms := UnwindAlarms, CurrentSeverity := _CurrentAlarmSeverity);
+IF _CurrentAlarmSeverity >= TcEventSeverity.Error THEN
+	ChangeState(E_PMLCommand.ePMLCommand_Abort);
+END_IF
+
+CyclicLogic_Simulation();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CyclicLogic_Simulation" Id="{49ade795-c3a9-4514-8827-e00e6a168bab}" FolderPath="Methods\">
+      <Declaration><![CDATA[METHOD CyclicLogic_Simulation
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(*	
+This is just for testing. Real hardware can be setup in other places
+Here the alarms will raise and clear on its own if the input changes	
+*)
+
+//Generic Alarms for Testing
+IF ErrorInput AND NOT UnwindAlarms[E_Unwind.AlarmMessage].bRaised THEN
+	RaiseAlarm2Args(UnwindAlarms[E_Unwind.AlarmMessage], '', '');
+ELSIF NOT ErrorInput AND UnwindAlarms[E_Unwind.AlarmMessage].bRaised THEN
+	UnwindAlarms[E_Unwind.AlarmMessage].Clear(0, 0);
+END_IF
+
+IF WarnInput AND NOT UnwindAlarms[E_Unwind.WarnMessage].bRaised THEN
+	RaiseAlarm2Args(UnwindAlarms[E_Unwind.WarnMessage], '', '');
+ELSIF NOT WarnInput AND UnwindAlarms[E_Unwind.WarnMessage].bRaised THEN
+	UnwindAlarms[E_Unwind.WarnMessage].Clear(0, 0);
+END_IF
+
+IF InfoInput AND NOT UnwindAlarms[E_Unwind.InfoMessage].bRaised THEN
+	RaiseAlarm2Args(UnwindAlarms[E_Unwind.InfoMessage], '', '');
+ELSIF NOT InfoInput AND UnwindAlarms[E_Unwind.InfoMessage].bRaised THEN
+	UnwindAlarms[E_Unwind.InfoMessage].Clear(0, 0);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Initialize" Id="{47a6dfbb-20e4-478a-aa6e-257e0166ad19}" FolderPath="Methods\">
+      <Declaration><![CDATA[//! @summary Basic module initialization logic
+METHOD PROTECTED Initialize : BOOL;
+VAR
+	i						 : UDINT;
+	varInfo					 : __SYSTEM.VAR_INFO;
+	AllSubUnitsInitialized	 : BOOL := TRUE;
+	AllComponentsInitialized : BOOL := TRUE;
+END_VAR
+
+//! @description This method is called by <c>CyclicLogic()</c> as required]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Initialize := FALSE;
+CASE DescendantSequenceState OF
+	0:
+	//	RegisterComponent(Axis);
+		RegisterComponent(Sensor);
+		_LogModeChanges			:= FALSE;
+		_LogStateChanges		:= FALSE;
+		DescendantSequenceState := DescendantSequenceState + 10;
+
+	10:
+		//Setup Custom modes here
+
+		(*CustomModes(eMode                          :=,
+                    sName                          :=,
+                    bDisableClearing               :=,
+                    bDisableStarting               :=,
+                    bDisableSuspended              :=,
+                    bDisableStopping               :=,
+                    bDisableAborting               :=,
+                    bDisableHolding                :=,
+                    bDisableHeld                   :=,
+                    bDisableUnholding              :=,
+                    bDisableSuspending             :=,
+                    bDisableUnsuspending           :=,
+                    bDisableResetting              :=,
+                    bDisableIdle                   :=,
+                    bDisableCompleting             :=,
+                    bDisableComplete               :=,
+                    bEnableUnitModeChangeStopped   :=,
+                    bEnableUnitModeChangeIdle      :=,
+                    bEnableUnitModeChangeSuspended :=,
+                    bEnableUnitModeChangeExecute   :=,
+                    bEnableUnitModeChangeAborted   :=,
+                    bEnableUnitModeChangeHeld      :=,
+                    bEnableUnitModeChangeComplete  :=,
+                    bError                         =>,
+                    nErrorId                       =>);*)
+		DescendantSequenceState := DescendantSequenceState + 10;
+
+	20:
+		//Copy Mode names
+		FOR i := 1 TO 3 DO
+			ModeNames[i] := F_UnitModeToString(UDINT_TO_DINT(i));
+		END_FOR
+
+		Initialize_TagData();
+		RegisterExternalController(Controller := fbControlSourceHMI);
+		fbControlSourceHMI.CyclicLogic();
+
+		//Set the Parent Response here
+		_ParentFaultResponseDefinitions[TcEventSeverity.Error] := E_AlarmResponse.Hold_Immediate;
+		DescendantSequenceState								   := DescendantSequenceState + 10;
+
+	30:
+		//Call the Super
+		IF SUPER^.Initialize() THEN
+			DescendantSequenceState := DescendantSequenceState + 10;
+		END_IF
+
+	40:
+		Initialize := TRUE;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Initialize_TagData" Id="{f8d3c495-297d-4a2e-80ac-5bf69198a53b}" FolderPath="Methods\">
+      <Declaration><![CDATA[METHOD Initialize_TagData
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//Recipe
+Recipe.Axis.Velocity	 := 100;
+Recipe.Axis.Acceleration := 1000;
+
+//Report
+_Report[FAULT].ID	:= TO_DINT(3 * 10 + 1);
+_Report[FAULT].Name := 'Fault ID';
+_Report[FAULT].Unit := 'n/a';]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RaiseAlarm2Args" Id="{965cb7f8-9d04-4b97-b139-e9f9446c56ef}" FolderPath="Methods\">
+      <Declaration><![CDATA[METHOD RaiseAlarm2Args
+VAR_IN_OUT
+	Alarm : FB_TcAlarm; //Alarm to be raised
+END_VAR
+
+VAR_INPUT
+	String_1 : STRING; //First String Parameter (The Name of this component will be applied first automatically)
+	String_2 : STRING; //Second String Parameter
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[F_RaiseAlarmWithStringParameters(Alarm	  := Alarm,
+								 String_1 := Name,
+								 String_2 := String_1,
+								 String_3 := String_2);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Starting" Id="{227ebfbf-b930-436b-8c9d-019269a286ca}" FolderPath="Methods\Acting States\">
+      <Declaration><![CDATA[METHOD PROTECTED Starting
+VAR_INPUT
+END_VAR
+
+VAR_INST
+	StartTimer : TON;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE _CurrentMode OF
+	//=================================PRODUCTION MODE==================================
+	E_PMLUnitMode.ePMLUnitMode_Production:
+		CASE SequenceState OF
+			0:
+				// Delay 1 scan to make sure timer is off.  Not guarnteed from last time where it finished.
+				NoStateTasksToComplete := FALSE;
+				SequenceState		   := SequenceState + 10;
+
+			10:
+				NoStateTasksToComplete := FALSE;
+		//		Axis.Velocity		   := Recipe.Axis.Velocity;
+		//		Axis.Acceleration	   := Recipe.Axis.Acceleration;
+		//		Axis.MoveVelocity(Velocity := Recipe.Axis.Velocity, AbortPrevious := FALSE);
+				SequenceState := SequenceState + 10;
+
+			20:
+		//		IF Axis.Busy THEN
+					SequenceState := SequenceState + 10;
+		//		END_IF
+
+				IF StartTimer.Q AND NOT UnwindAlarms[E_Unwind.StartTimeout].bRaised THEN
+					RaiseAlarm2Args(UnwindAlarms[E_Unwind.StartTimeout], '', '');
+					SequenceState := SequenceState + 10;
+				END_IF
+
+			30:
+				StateTasksComplete := TRUE;
+		END_CASE
+
+	//=================================MAINTENANCE & MANUAL MODE==================================
+	E_PMLUnitMode.ePMLUnitMode_Maintenance, E_PMLUnitMode.ePMLUnitMode_Manual:
+		;
+END_CASE
+
+SUPER^.Starting();
+StartTimer(IN := (SequenceState = 10 OR SequenceState = 20), PT := T#3S);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Stopping" Id="{8df746e0-1b91-466d-a219-cfc92839b554}" FolderPath="Methods\Acting States\">
+      <Declaration><![CDATA[METHOD PROTECTED Stopping
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE _CurrentMode OF
+	//=================================PRODUCTION MODE==================================
+	E_PMLUnitMode.ePMLUnitMode_Production:
+		CASE SequenceState OF
+			0:
+				NoStateTasksToComplete := FALSE;
+		//		Axis.Stop();
+				SequenceState := SequenceState + 10;
+
+			10:
+		//		IF Axis.Stopped THEN
+					SequenceState := SequenceState + 10;
+		//		END_IF
+
+			20:
+				StateTasksComplete := TRUE;
+		END_CASE
+
+	//=================================MAINTENANCE & MANUAL MODE==================================
+	E_PMLUnitMode.ePMLUnitMode_Maintenance, E_PMLUnitMode.ePMLUnitMode_Manual:
+		;
+END_CASE
+
+SUPER^.Stopping();]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Velocity" Id="{f2c62b2f-3b6a-4f58-aa17-a427f4d6b218}" FolderPath="Properties\">
+      <Declaration><![CDATA[PROPERTY Velocity : LREAL]]></Declaration>
+      <Set Name="Set" Id="{8dcad705-f556-4d26-9ae9-c6cd9612fd9c}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Recipe.Axis.Velocity := Velocity;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <LineIds Name="FB_Station_3">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Station_3.Aborting">
+      <LineId Id="3" Count="23" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Station_3.Acceleration.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Station_3.Clearing">
+      <LineId Id="3" Count="22" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Station_3.CreateEvents">
+      <LineId Id="3" Count="6" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Station_3.CyclicLogic">
+      <LineId Id="3" Count="15" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Station_3.CyclicLogic_Simulation">
+      <LineId Id="3" Count="21" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Station_3.Initialize">
+      <LineId Id="3" Count="60" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Station_3.Initialize_TagData">
+      <LineId Id="3" Count="6" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Station_3.RaiseAlarm2Args">
+      <LineId Id="3" Count="2" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Station_3.Starting">
+      <LineId Id="3" Count="35" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Station_3.Stopping">
+      <LineId Id="3" Count="22" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Station_3.Velocity.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
