@@ -1,22 +1,27 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
-  <POU Name="FB_Unwind" Id="{93b6d370-9060-40d7-8101-95f7e4ba6901}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FB_Unwind EXTENDS FB_PackML_BaseModule
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.16">
+  <POU Name="FB_Single_Drive_Outfeed_Sensor" Id="{73500bba-4aad-4a6d-89ae-c5f0e9aa9198}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Single_Drive_Outfeed_Sensor EXTENDS FB_PackML_BaseModule
 VAR
+	//Axis Controller Status
+	_Controller_Sts	:ST_Controller_Status ;
+
 	// Sub module definitions here
 
 	// List of sub modules
 	ipSubModules_Init : ARRAY[1..Parameters_PackML_Base.MAX_NO_OF_SUBMODULES] OF I_PackML_BaseModule := [];
 
 	// Component definitions here
-	Axis   : FB_Component_BasicAxis := (Name := 'Axis');
-	Sensor : FB_DigitalSensor		:= (Name := 'Sensor');
+//	Axis_Sensors   : FB_Component_BasicAxis := (Name := 'Axis');
+	Axis   : FB_MotionlinxAI_Axis:=(Controller_Sts	:= _Controller_Sts);
+	Sensor : FB_DigitalSensor		:= (Name := 'Sensor', DebounceMode := E_DebounceMode.SimpleFlickerFilter, DebounceTime := T#250MS, Inverted    := FALSE, SimulationInput:= FALSE, SimulationMode := E_SensorSimulationMode.InputDriven) ;
+
 
 	//Alarms for this module
-	UnwindAlarms : ARRAY[1..UNWIND_ALARM_COUNT] OF FB_TcAlarm;
+	ConveyorAlarms : ARRAY[1..CONVEYOR_ALARM_COUNT] OF FB_TcAlarm;
 
 	//Data for recipe
-	Recipe : ST_UnwindRecipe;
+	Recipe : ST_ConveyorRecipe;
 
 	(*Parameters from PackTags for module
     //_Param  : ARRAY[1..10] OF ST_Descriptor2;*)
@@ -24,14 +29,22 @@ VAR
 
 	//HMI Control for EM
 	fbControlSourceHMI : FB_ControlSource_HMI;
+	
+	Enable_Drive	:BOOL;
+	Disable_Drive	:BOOL;
+	Emergency_Stop	:bool;
+	Start_Drive		:BOOL;
+	Stop_Drive		:BOOL;
 END_VAR
+
+
 
 VAR CONSTANT
 	//reports 
 	FAULT : INT := 1;
 
 	//Alarms
-	UNWIND_ALARM_COUNT : INT := 5;
+	CONVEYOR_ALARM_COUNT : INT := 5;
 END_VAR
 
 //Simulation variables for messaging
@@ -39,17 +52,19 @@ VAR
 	ErrorInput : BOOL;
 	WarnInput  : BOOL;
 	InfoInput  : BOOL;
-END_VAR]]></Declaration>
+END_VAR
+
+]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
-    <Folder Name="I_CyclicFB" Id="{50b2b73b-a7e6-449c-8083-d6eb4b73f60c}" />
-    <Folder Name="Methods" Id="{1fe8be3a-f7d7-42ae-b885-2501b85559e1}">
-      <Folder Name="Acting States" Id="{694adf4f-f884-4b0e-ba6d-9f953b81f310}" />
-      <Folder Name="AlarmHandling" Id="{70e44d7b-4274-40c4-b74d-565592321484}" />
+    <Folder Name="I_CyclicFB" Id="{ebd96cb7-e362-4e62-9558-92becc3f667b}" />
+    <Folder Name="Methods" Id="{bd168cc7-1abe-47d3-92cc-43b034bfb1d9}">
+      <Folder Name="Acting States" Id="{6ffbd0a2-335f-4faf-baf0-f53b866f3de9}" />
+      <Folder Name="AlarmHandling" Id="{50fe434d-4201-4591-a9d0-fc86463e1e76}" />
     </Folder>
-    <Folder Name="Properties" Id="{9ed10d00-9336-4b92-8254-1686c13962e6}" />
-    <Method Name="Aborting" Id="{bdb0d746-aea7-4c8d-aad7-79d5f9fbae03}" FolderPath="Methods\Acting States\">
+    <Folder Name="Properties" Id="{3ce96ec9-2a16-437c-9de2-1b2f3bf8722d}" />
+    <Method Name="Aborting" Id="{91d0fcc4-6e18-4fec-bde8-65dc5d3c2e79}" FolderPath="Methods\Acting States\">
       <Declaration><![CDATA[METHOD PROTECTED Aborting
 VAR_INPUT
 END_VAR]]></Declaration>
@@ -81,9 +96,9 @@ END_CASE
 SUPER^.Aborting();]]></ST>
       </Implementation>
     </Method>
-    <Property Name="Acceleration" Id="{1c2276ee-9cba-4c99-b7d6-1838f1184aea}" FolderPath="Properties\">
-      <Declaration><![CDATA[PROPERTY Acceleration : LREAL]]></Declaration>
-      <Set Name="Set" Id="{d411bf23-e43c-40ef-b49c-52a8af7b1701}">
+    <Property Name="Acceleration" Id="{0316d55d-b9d1-4dbb-b04d-8fadb3a3b07a}" FolderPath="Properties\">
+      <Declaration><![CDATA[PROPERTY Acceleration : int]]></Declaration>
+      <Set Name="Set" Id="{807f85ae-70ff-46ea-ad96-34a0ed05c3cc}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
@@ -91,7 +106,7 @@ END_VAR]]></Declaration>
         </Implementation>
       </Set>
     </Property>
-    <Method Name="Clearing" Id="{f1ec6ac1-684d-4fbb-87f9-9498565943f4}" FolderPath="Methods\Acting States\">
+    <Method Name="Clearing" Id="{c26719ef-75e9-40e0-bc23-0c3dd13abd3d}" FolderPath="Methods\Acting States\">
       <Declaration><![CDATA[METHOD PROTECTED Clearing
 VAR_INPUT
 END_VAR]]></Declaration>
@@ -103,7 +118,7 @@ END_VAR]]></Declaration>
 
 	10:
 		//Reset any alarms that get latched
-		UnwindAlarms[E_Unwind.StartTimeout].Clear(0, 0);
+		ConveyorAlarms[E_Unwind.StartTimeout].Clear(0, 0);
 		SequenceState := SequenceState + 10;
 
 	20:
@@ -122,13 +137,24 @@ END_CASE
 SUPER^.Clearing();]]></ST>
       </Implementation>
     </Method>
-    <Method Name="CreateEvents" Id="{99ddd031-78aa-46a7-b2f9-f0b68a19d02e}" FolderPath="Methods\">
+    <Property Name="Controller_Sts" Id="{3c6156c1-9f47-4983-b9fb-2ec6d10e370f}" FolderPath="Properties\">
+      <Declaration><![CDATA[PROPERTY Controller_Sts : ST_Controller_Status]]></Declaration>
+      <Set Name="Set" Id="{0adb3864-b3ad-4ec3-8eb9-66fc644ef6a1}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Controller_Sts	:=Controller_Sts;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="CreateEvents" Id="{fb022949-8b19-4822-8e29-e3572e377a53}" FolderPath="Methods\">
       <Declaration><![CDATA[METHOD PROTECTED CreateEvents
 VAR_INPUT
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[// Add your event creation here
-F_CreateAllEventsInClass(Alarms		:= UnwindAlarms,
+F_CreateAllEventsInClass(Alarms		:= ConveyorAlarms,
 						 ClassSize	:= SIZEOF(TC_EVENTS.Unwind),
 						 pInitEvent := ADR(TC_EVENTS.Unwind.InitReferenceEvent),
 						 Prefix		:= Name);
@@ -137,7 +163,7 @@ F_CreateAllEventsInClass(Alarms		:= UnwindAlarms,
 SUPER^.CreateEvents();]]></ST>
       </Implementation>
     </Method>
-    <Method Name="CyclicLogic" Id="{ea09e275-dd4c-4ec1-a323-7e0cfd7e21cd}" FolderPath="I_CyclicFB\">
+    <Method Name="CyclicLogic" Id="{cf806096-f3ed-407c-b148-66fb10a4eb84}" FolderPath="I_CyclicFB\">
       <Declaration><![CDATA[METHOD CyclicLogic
 VAR_INPUT
 END_VAR]]></Declaration>
@@ -149,19 +175,65 @@ END_IF
 
 SUPER^.CyclicLogic();
 
+//Conveyor goes to idle and stop the conveyor if no input for 1 minute?
+//Conveyor wont start if following conveyor in error or not running goes to blocked?
+
+
 //HMI control for EM
 fbControlSourceHMI.CyclicLogic();
 
 //Set the current alarm severity for this module
-_CurrentAlarmSeverity := F_GetMaxSeverityRaised(Alarms := UnwindAlarms, CurrentSeverity := _CurrentAlarmSeverity);
+_CurrentAlarmSeverity := F_GetMaxSeverityRaised(Alarms := ConveyorAlarms, CurrentSeverity := _CurrentAlarmSeverity);
 IF _CurrentAlarmSeverity >= TcEventSeverity.Error THEN
 	ChangeState(E_PMLCommand.ePMLCommand_Abort);
 END_IF
 
-CyclicLogic_Simulation();]]></ST>
+Axis.Controller_Sts	:= _Controller_Sts;
+
+//Axis.Sensors;
+//Axis.Controller_Sts:= iController_Sensors ;
+//CyclicLogic_Simulation();
+
+//Quick cotrol for testing
+
+Recipe.Axis.MaxSpeed;
+IF Emergency_Stop	 THEN
+	Axis.EmergencyStop();
+	Emergency_Stop	:= FALSE;
+END_IF
+
+
+IF Enable_Drive THEN
+	Axis.Enable();
+	Enable_Drive	:= FALSE;
+END_IF
+
+
+IF Disable_Drive THEN
+	Axis.Disable();
+	Disable_Drive	:= FALSE;
+END_IF
+
+IF Start_Drive THEN
+	Axis.Acceleration := Recipe.Axis.Acceleration;
+	Axis.Velocity := Recipe.Axis.Velocity;
+	Axis.Start();
+	IF not Axis.Stopped THEN
+		Start_Drive	:= FALSE;
+	END_IF
+END_IF
+
+IF Stop_Drive THEN
+	Axis.Deceleration := Recipe.Axis.Deceleration;
+//	Axis.Velocity := Recipe.Axis.Velocity;
+	Axis.Stop();
+	IF Axis.Stopped THEN
+		Stop_Drive	:= FALSE;
+	END_IF
+END_IF]]></ST>
       </Implementation>
     </Method>
-    <Method Name="CyclicLogic_Simulation" Id="{9b148660-9d4a-4cd8-aff6-f8eb0f885962}" FolderPath="Methods\">
+    <Method Name="CyclicLogic_Simulation" Id="{42167f28-e83f-468d-ae62-ec8daa3430cd}" FolderPath="Methods\">
       <Declaration><![CDATA[METHOD CyclicLogic_Simulation
 VAR_INPUT
 END_VAR]]></Declaration>
@@ -191,7 +263,18 @@ ELSIF NOT InfoInput AND UnwindAlarms[E_Unwind.InfoMessage].bRaised THEN
 END_IF]]></ST>
       </Implementation>
     </Method>
-    <Method Name="Initialize" Id="{59d1fe7d-28ec-4cbf-a3ef-81f06735b3ba}" FolderPath="Methods\">
+    <Property Name="Deceleration" Id="{e056b241-4f85-42ef-995f-4bdedf758fa5}" FolderPath="Properties\">
+      <Declaration><![CDATA[PROPERTY Deceleration : int]]></Declaration>
+      <Set Name="Set" Id="{8f52b27b-efc6-48d3-82b7-f7e49adc7904}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Recipe.Axis.Deceleration := Deceleration;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="Initialize" Id="{88206e03-f358-4473-9fc4-de71ffbb2c58}" FolderPath="Methods\">
       <Declaration><![CDATA[//! @summary Basic module initialization logic
 METHOD PROTECTED Initialize : BOOL;
 VAR
@@ -203,7 +286,10 @@ END_VAR
 
 //! @description This method is called by <c>CyclicLogic()</c> as required]]></Declaration>
       <Implementation>
-        <ST><![CDATA[Initialize := FALSE;
+        <ST><![CDATA[	Axis.MaxSpeed := Recipe.Axis.MaxSpeed;
+
+//https://beckhoff-usa-community.github.io/SPT-Libraries/Getting_Started/PackML%20Overview.html
+Initialize := FALSE;
 CASE DescendantSequenceState OF
 	0:
 		RegisterComponent(Axis);
@@ -215,22 +301,22 @@ CASE DescendantSequenceState OF
 	10:
 		//Setup Custom modes here
 
-		(*CustomModes(eMode                          :=,
+		CustomModes(eMode                          :=,
                     sName                          :=,
-                    bDisableClearing               :=,
+                    bDisableClearing               :=true,		// Is there a sequence that has to happen in clearing or can I sit in Stopped and perform the clear?
                     bDisableStarting               :=,
-                    bDisableSuspended              :=,
+                    bDisableSuspended              :=false,	//Upstream or downstream are blocked
                     bDisableStopping               :=,
-                    bDisableAborting               :=,
-                    bDisableHolding                :=,
-                    bDisableHeld                   :=,
-                    bDisableUnholding              :=,
-                    bDisableSuspending             :=,
-                    bDisableUnsuspending           :=,
+                    bDisableAborting               :=false,		//Ramp down the drives needed?
+                    bDisableHolding                :=false,		//Nothing for operator to do ie refil
+                    bDisableHeld                   :=false,		//Nothing for operator to do ie refil
+                    bDisableUnholding              :=false,		//Nothing for operator to do ie refil
+                    bDisableSuspending             :=false,	//Upstream or downstream are blocked
+                    bDisableUnsuspending           :=false,	//Upstream or downstream are blocked
                     bDisableResetting              :=,
                     bDisableIdle                   :=,
-                    bDisableCompleting             :=,
-                    bDisableComplete               :=,
+                    bDisableCompleting             :=TRUE,	//Disable of coneyor or 1 part only the conveyor
+                    bDisableComplete               :=true,
                     bEnableUnitModeChangeStopped   :=,
                     bEnableUnitModeChangeIdle      :=,
                     bEnableUnitModeChangeSuspended :=,
@@ -239,7 +325,7 @@ CASE DescendantSequenceState OF
                     bEnableUnitModeChangeHeld      :=,
                     bEnableUnitModeChangeComplete  :=,
                     bError                         =>,
-                    nErrorId                       =>);*)
+                    nErrorId                       =>);
 		DescendantSequenceState := DescendantSequenceState + 10;
 
 	20:
@@ -267,14 +353,16 @@ CASE DescendantSequenceState OF
 END_CASE]]></ST>
       </Implementation>
     </Method>
-    <Method Name="Initialize_TagData" Id="{cc617178-5960-4d50-b787-6b9fa33e7529}" FolderPath="Methods\">
+    <Method Name="Initialize_TagData" Id="{933d8bc7-4fbe-4c4c-b771-ebdef3325d72}" FolderPath="Methods\">
       <Declaration><![CDATA[METHOD Initialize_TagData
 VAR_INPUT
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[//Recipe
-Recipe.Axis.Velocity	 := 100;
+Recipe.Axis.Velocity	 := 50;
 Recipe.Axis.Acceleration := 1000;
+Recipe.Axis.Deceleration := 500;
+Recipe.Axis.MaxSpeed	 := 100;
 
 //Report
 _Report[FAULT].ID	:= TO_DINT(3 * 10 + 1);
@@ -282,7 +370,7 @@ _Report[FAULT].Name := 'Fault ID';
 _Report[FAULT].Unit := 'n/a';]]></ST>
       </Implementation>
     </Method>
-    <Method Name="RaiseAlarm2Args" Id="{7b5fcd4f-47a7-4be3-b737-1f985fad3866}" FolderPath="Methods\">
+    <Method Name="RaiseAlarm2Args" Id="{21bb070d-b80c-46ea-9bf8-b966929b45b3}" FolderPath="Methods\">
       <Declaration><![CDATA[METHOD RaiseAlarm2Args
 VAR_IN_OUT
 	Alarm : FB_TcAlarm; //Alarm to be raised
@@ -299,7 +387,7 @@ END_VAR]]></Declaration>
 								 String_3 := String_2);]]></ST>
       </Implementation>
     </Method>
-    <Method Name="Starting" Id="{df4c4264-8610-42ca-aaef-d7307256e131}" FolderPath="Methods\Acting States\">
+    <Method Name="Starting" Id="{4114c6ee-a23e-46cf-8da1-82f7147529a7}" FolderPath="Methods\Acting States\">
       <Declaration><![CDATA[METHOD PROTECTED Starting
 VAR_INPUT
 END_VAR
@@ -319,9 +407,12 @@ END_VAR]]></Declaration>
 
 			10:
 				NoStateTasksToComplete := FALSE;
+		
+				
 				Axis.Velocity		   := Recipe.Axis.Velocity;
 				Axis.Acceleration	   := Recipe.Axis.Acceleration;
-				Axis.MoveVelocity(Velocity := Recipe.Axis.Velocity, AbortPrevious := FALSE);
+				Axis.Start();
+		//		Axis.MoveVelocity(Velocity := Recipe.Axis.Velocity, AbortPrevious := FALSE);
 				SequenceState := SequenceState + 10;
 
 			20:
@@ -329,8 +420,8 @@ END_VAR]]></Declaration>
 					SequenceState := SequenceState + 10;
 				END_IF
 
-				IF StartTimer.Q AND NOT UnwindAlarms[E_Unwind.StartTimeout].bRaised THEN
-					RaiseAlarm2Args(UnwindAlarms[E_Unwind.StartTimeout], '', '');
+				IF StartTimer.Q AND NOT ConveyorAlarms[E_Unwind.StartTimeout].bRaised THEN
+					RaiseAlarm2Args(ConveyorAlarms[E_Unwind.StartTimeout], '', '');
 					SequenceState := SequenceState + 10;
 				END_IF
 
@@ -347,7 +438,7 @@ SUPER^.Starting();
 StartTimer(IN := (SequenceState = 10 OR SequenceState = 20), PT := T#3S);]]></ST>
       </Implementation>
     </Method>
-    <Method Name="Stopping" Id="{46484e2e-d13e-46af-afb0-40bd4e855a4b}" FolderPath="Methods\Acting States\">
+    <Method Name="Stopping" Id="{7423e0c6-8b3c-40ee-93b4-7cbc4fb1ec32}" FolderPath="Methods\Acting States\">
       <Declaration><![CDATA[METHOD PROTECTED Stopping
 VAR_INPUT
 END_VAR]]></Declaration>
@@ -358,6 +449,8 @@ END_VAR]]></Declaration>
 		CASE SequenceState OF
 			0:
 				NoStateTasksToComplete := FALSE;
+			//	Axis.Stop();
+				Deceleration := Recipe.Axis.Deceleration;
 				Axis.Stop();
 				SequenceState := SequenceState + 10;
 
@@ -378,9 +471,9 @@ END_CASE
 SUPER^.Stopping();]]></ST>
       </Implementation>
     </Method>
-    <Property Name="Velocity" Id="{4a353ca3-1dd1-4a51-9960-fbed664b7b4b}" FolderPath="Properties\">
-      <Declaration><![CDATA[PROPERTY Velocity : LREAL]]></Declaration>
-      <Set Name="Set" Id="{ad25254f-0304-481d-9e2a-87a66fc50f23}">
+    <Property Name="Velocity" Id="{ba06a3b1-8bf9-4d6a-93ea-53c0d26e0e49}" FolderPath="Properties\">
+      <Declaration><![CDATA[PROPERTY Velocity : int]]></Declaration>
+      <Set Name="Set" Id="{ebb78efe-3f88-49d2-88c9-11b4223b26ad}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
@@ -388,5 +481,60 @@ END_VAR]]></Declaration>
         </Implementation>
       </Set>
     </Property>
+    <LineIds Name="FB_Single_Drive_Outfeed_Sensor">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Single_Drive_Outfeed_Sensor.Aborting">
+      <LineId Id="3" Count="23" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Single_Drive_Outfeed_Sensor.Acceleration.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Single_Drive_Outfeed_Sensor.Clearing">
+      <LineId Id="3" Count="22" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Single_Drive_Outfeed_Sensor.Controller_Sts.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Single_Drive_Outfeed_Sensor.CreateEvents">
+      <LineId Id="3" Count="6" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Single_Drive_Outfeed_Sensor.CyclicLogic">
+      <LineId Id="3" Count="61" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Single_Drive_Outfeed_Sensor.CyclicLogic_Simulation">
+      <LineId Id="3" Count="21" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Single_Drive_Outfeed_Sensor.Deceleration.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Single_Drive_Outfeed_Sensor.Initialize">
+      <LineId Id="3" Count="63" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Single_Drive_Outfeed_Sensor.Initialize_TagData">
+      <LineId Id="3" Count="8" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Single_Drive_Outfeed_Sensor.RaiseAlarm2Args">
+      <LineId Id="3" Count="2" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Single_Drive_Outfeed_Sensor.Starting">
+      <LineId Id="3" Count="38" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Single_Drive_Outfeed_Sensor.Stopping">
+      <LineId Id="3" Count="24" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Single_Drive_Outfeed_Sensor.Velocity.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
   </POU>
 </TcPlcObject>

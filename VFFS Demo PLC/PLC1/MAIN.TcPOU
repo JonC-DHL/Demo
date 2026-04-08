@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.16">
   <POU Name="MAIN" Id="{0a415e5e-1cd5-4d94-8552-fcd14dfd2571}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM MAIN
 VAR
 	ControlSource_HMI : FB_ControlSource_HMI_Machine;
-	VFFSDemo		  : FB_Machine := (Name := 'VFFS Demo');
+	Demo_System		  : FB_Machine := (Name := 'VFFS Demo');
 	InitComplete	  : BOOL;
 
 	//Debug testing Recipe manager
@@ -28,7 +28,7 @@ END_IF
 ControlSource_HMI.CyclicLogic();
 
 //Machine Cyclic Logic
-VFFSDemo.CyclicLogic();]]></ST>
+Demo_System.CyclicLogic();]]></ST>
       </Implementation>
     </Method>
     <Method Name="Initialize" Id="{b0a02fad-0cef-4243-8118-97702c63fa8f}">
@@ -39,12 +39,23 @@ END_VAR]]></Declaration>
         <ST><![CDATA[//Top level machine initialization should happen here, in the main initialization method. Each subsequent "layer" of modules will be named within their respective "parent" intialize method
 _AppInfo.KeepOutputsOnBP := TRUE;
 IF NOT ControlSource_HMI.Registered THEN
-	VFFSDemo.RegisterExternalController(ControlSource_HMI);
+	Demo_System.RegisterExternalController(ControlSource_HMI);
 END_IF
 
 ControlSource_HMI.CyclicLogic();
 Initialize := TRUE;]]></ST>
       </Implementation>
     </Method>
+    <LineIds Name="MAIN">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="MAIN.CyclicLogic">
+      <LineId Id="3" Count="8" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="MAIN.Initialize">
+      <LineId Id="3" Count="6" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
   </POU>
 </TcPlcObject>

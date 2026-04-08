@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.16">
+  <DUT Name="ST_MotionlinxAI_Axis_Status" Id="{b7396a8d-b695-4c2f-8e27-42276537eaba}">
+    <Declaration><![CDATA[TYPE ST_MotionlinxAI_Axis_Status :
+	STRUCT
+		Extended   : BOOL;
+		Retracted  : BOOL;
+		Extending  : BOOL;
+		Retracting : BOOL;
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

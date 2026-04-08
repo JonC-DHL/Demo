@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.16">
+  <Itf Name="I_MotionlinxAI_Axis" Id="{c01f17c0-c2ad-4f76-b252-af9b94d50a71}">
+    <Declaration><![CDATA[INTERFACE I_MotionlinxAI_Axis
+]]></Declaration>
+    <Property Name="HasFault" Id="{52818e9e-a7e0-4abf-82aa-cd9bc2c1fc55}">
+      <Declaration><![CDATA[PROPERTY HasFault : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{2813bc00-55c7-4383-a13d-fcfdd0e5834a}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="IsEnabled" Id="{0a3ba106-c63b-4b0b-a679-d4fc962ef76a}">
+      <Declaration><![CDATA[PROPERTY IsEnabled : BOOL]]></Declaration>
+      <Get Name="Get" Id="{70a929db-4764-47fd-b777-6c6f4493b29e}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="IsReady" Id="{7a7448a9-a0d7-4964-91fc-4ebb07e41f8f}">
+      <Declaration><![CDATA[PROPERTY IsReady : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{668cbaf3-91c8-4db7-af24-2323c7222229}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

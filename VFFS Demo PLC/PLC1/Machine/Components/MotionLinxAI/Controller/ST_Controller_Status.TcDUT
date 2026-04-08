@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.16">
+  <DUT Name="ST_Controller_Status" Id="{9a0878d7-f546-461b-9b25-bc057e9cf7ec}">
+    <Declaration><![CDATA[TYPE ST_Controller_Status :
+STRUCT
+	HasFault : BOOL;
+	bEnabled : BOOL;
+	Sensors : INT;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

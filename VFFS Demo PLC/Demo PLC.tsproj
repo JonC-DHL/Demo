@@ -1023,54 +1023,67 @@ External Setpoint Generation:
 		</Motion>
 		<Plc>
 			<Project GUID="{0E250E61-BC3B-478D-8CD8-ACAB8830117A}" Name="PLC1" PrjFilePath="PLC1\PLC1.plcproj" TmcFilePath="PLC1\PLC1.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" CopyTmcToTarget="true" CopyTpyToTarget="false" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PLC1\PLC1.tmc" TmcHash="{122DDA71-B7D2-FB8E-C93F-C0DDC338526F}">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PLC1\PLC1.tmc" TmcHash="{D58F5DB9-9986-B35A-9542-07FAE6C72AF7}">
 					<Name>PLC1 Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="1">
 						<Name>PlcTask Inputs</Name>
 						<Var>
-							<Name>MAIN.VFFSDemo.PullWheels.LeftPullWheel.BasicSlaveAxis._Axis.NcToPlc</Name>
+							<Name>MAIN.Demo_System.PullWheels.LeftPullWheel.BasicSlaveAxis._Axis.NcToPlc</Name>
 							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.VFFSDemo.PullWheels.RightPullWheel.BasicSlaveAxis._Axis.NcToPlc</Name>
+							<Name>MAIN.Demo_System.PullWheels.RightPullWheel.BasicSlaveAxis._Axis.NcToPlc</Name>
 							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.VFFSDemo.Sealer.SealerAxis.BasicAxis._Axis.NcToPlc</Name>
+							<Name>MAIN.Demo_System.Sealer.SealerAxis.BasicAxis._Axis.NcToPlc</Name>
 							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.VFFSDemo.Unwind.Axis.BasicAxis._Axis.NcToPlc</Name>
+							<Name>MAIN.Demo_System.Unwind.Axis.BasicAxis._Axis.NcToPlc</Name>
 							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.VFFSDemo.Unwind.Sensor.HardwareInput</Name>
+							<Name>MAIN.Demo_System.Unwind.Sensor.HardwareInput</Name>
 							<Comment><![CDATA[ Hardware input bit from the physical sensor]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.VFFSDemo.Station_1.Sensor.HardwareInput</Name>
+							<Name>MAIN.Demo_System.Station_1.Axis.iServoState</Name>
+							<Comment><![CDATA[Inputs]]></Comment>
+							<Type>SINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Demo_System.Station_1.Axis.iPosition</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Demo_System.Station_1.Axis.iDiagnostics</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Demo_System.Station_1.Sensor.HardwareInput</Name>
 							<Comment><![CDATA[ Hardware input bit from the physical sensor]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.VFFSDemo.Station_2.Sensor.HardwareInput</Name>
+							<Name>MAIN.Demo_System.Station_2.Sensor.HardwareInput</Name>
 							<Comment><![CDATA[ Hardware input bit from the physical sensor]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.VFFSDemo.Station_3.Sensor.HardwareInput</Name>
+							<Name>MAIN.Demo_System.Station_3.Sensor.HardwareInput</Name>
 							<Comment><![CDATA[ Hardware input bit from the physical sensor]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.VFFSDemo.Station_4.Sensor.HardwareInput</Name>
+							<Name>MAIN.Demo_System.Station_4.Sensor.HardwareInput</Name>
 							<Comment><![CDATA[ Hardware input bit from the physical sensor]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.VFFSDemo.Station_5.Sensor.HardwareInput</Name>
+							<Name>MAIN.Demo_System.Station_5.Sensor.HardwareInput</Name>
 							<Comment><![CDATA[ Hardware input bit from the physical sensor]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
@@ -1078,30 +1091,55 @@ External Setpoint Generation:
 					<Vars VarGrpType="2" AreaNo="1">
 						<Name>PlcTask Outputs</Name>
 						<Var>
-							<Name>MAIN.VFFSDemo.PullWheels.LeftPullWheel.BasicSlaveAxis._Axis.PlcToNc</Name>
+							<Name>MAIN.Demo_System.PullWheels.LeftPullWheel.BasicSlaveAxis._Axis.PlcToNc</Name>
 							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.VFFSDemo.PullWheels.RightPullWheel.BasicSlaveAxis._Axis.PlcToNc</Name>
+							<Name>MAIN.Demo_System.PullWheels.RightPullWheel.BasicSlaveAxis._Axis.PlcToNc</Name>
 							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.VFFSDemo.PullWheels.PullWheelCylinder.Output</Name>
+							<Name>MAIN.Demo_System.PullWheels.PullWheelCylinder.Output</Name>
 							<Comment><![CDATA[Output]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.VFFSDemo.Sealer.SealerAxis.BasicAxis._Axis.PlcToNc</Name>
+							<Name>MAIN.Demo_System.Sealer.SealerAxis.BasicAxis._Axis.PlcToNc</Name>
 							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.VFFSDemo.Sealer.SealBar._Heat</Name>
+							<Name>MAIN.Demo_System.Sealer.SealBar._Heat</Name>
 							<Comment><![CDATA[ IO]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.VFFSDemo.Unwind.Axis.BasicAxis._Axis.PlcToNc</Name>
+							<Name>MAIN.Demo_System.Unwind.Axis.BasicAxis._Axis.PlcToNc</Name>
 							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Demo_System.Station_1.Axis.oMotorControl</Name>
+							<Comment><![CDATA[Output]]></Comment>
+							<Type>SINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Demo_System.Station_1.Axis.oMotorSpeed</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Demo_System.Station_1.Axis.oMotorBrakeMode</Name>
+							<Type>SINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Demo_System.Station_1.Axis.oMotorAccel</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Demo_System.Station_1.Axis.oMotorDecel</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Demo_System.Station_1.Axis.oServoPos</Name>
+							<Type>INT</Type>
 						</Var>
 					</Vars>
 					<UnrestoredVarLinks ImportTime="2022-09-12T17:25:06">
@@ -1175,20 +1213,20 @@ External Setpoint Generation:
 		<MappingInfo Identifier="{05000010-2001-0850-1000-040300205008}" Id="#x02030010" Watchdog="14000000040000000400000004000000"/>
 		<OwnerA Name="TIPC^PLC1^PLC1 Instance">
 			<OwnerB Name="TINC^NC-Task 1 SAF^Axes^Pull 1">
-				<Link VarA="PlcTask Inputs^MAIN.VFFSDemo.PullWheels.LeftPullWheel.BasicSlaveAxis._Axis.NcToPlc" VarB="Outputs^ToPlc"/>
-				<Link VarA="PlcTask Outputs^MAIN.VFFSDemo.PullWheels.LeftPullWheel.BasicSlaveAxis._Axis.PlcToNc" VarB="Inputs^FromPlc"/>
+				<Link VarA="PlcTask Inputs^MAIN.Demo_System.PullWheels.LeftPullWheel.BasicSlaveAxis._Axis.NcToPlc" VarB="Outputs^ToPlc"/>
+				<Link VarA="PlcTask Outputs^MAIN.Demo_System.PullWheels.LeftPullWheel.BasicSlaveAxis._Axis.PlcToNc" VarB="Inputs^FromPlc"/>
 			</OwnerB>
 			<OwnerB Name="TINC^NC-Task 1 SAF^Axes^Pull 2">
-				<Link VarA="PlcTask Inputs^MAIN.VFFSDemo.PullWheels.RightPullWheel.BasicSlaveAxis._Axis.NcToPlc" VarB="Outputs^ToPlc"/>
-				<Link VarA="PlcTask Outputs^MAIN.VFFSDemo.PullWheels.RightPullWheel.BasicSlaveAxis._Axis.PlcToNc" VarB="Inputs^FromPlc"/>
+				<Link VarA="PlcTask Inputs^MAIN.Demo_System.PullWheels.RightPullWheel.BasicSlaveAxis._Axis.NcToPlc" VarB="Outputs^ToPlc"/>
+				<Link VarA="PlcTask Outputs^MAIN.Demo_System.PullWheels.RightPullWheel.BasicSlaveAxis._Axis.PlcToNc" VarB="Inputs^FromPlc"/>
 			</OwnerB>
 			<OwnerB Name="TINC^NC-Task 1 SAF^Axes^Seal">
-				<Link VarA="PlcTask Inputs^MAIN.VFFSDemo.Sealer.SealerAxis.BasicAxis._Axis.NcToPlc" VarB="Outputs^ToPlc"/>
-				<Link VarA="PlcTask Outputs^MAIN.VFFSDemo.Sealer.SealerAxis.BasicAxis._Axis.PlcToNc" VarB="Inputs^FromPlc"/>
+				<Link VarA="PlcTask Inputs^MAIN.Demo_System.Sealer.SealerAxis.BasicAxis._Axis.NcToPlc" VarB="Outputs^ToPlc"/>
+				<Link VarA="PlcTask Outputs^MAIN.Demo_System.Sealer.SealerAxis.BasicAxis._Axis.PlcToNc" VarB="Inputs^FromPlc"/>
 			</OwnerB>
 			<OwnerB Name="TINC^NC-Task 1 SAF^Axes^Unwind">
-				<Link VarA="PlcTask Inputs^MAIN.VFFSDemo.Unwind.Axis.BasicAxis._Axis.NcToPlc" VarB="Outputs^ToPlc"/>
-				<Link VarA="PlcTask Outputs^MAIN.VFFSDemo.Unwind.Axis.BasicAxis._Axis.PlcToNc" VarB="Inputs^FromPlc"/>
+				<Link VarA="PlcTask Inputs^MAIN.Demo_System.Unwind.Axis.BasicAxis._Axis.NcToPlc" VarB="Outputs^ToPlc"/>
+				<Link VarA="PlcTask Outputs^MAIN.Demo_System.Unwind.Axis.BasicAxis._Axis.PlcToNc" VarB="Inputs^FromPlc"/>
 			</OwnerB>
 		</OwnerA>
 	</Mappings>

@@ -22,6 +22,9 @@
     <Compile Include="DUTs\Recipe\ST_AxisRecipe.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DUTs\Recipe\ST_MotionLinxAxisRecipe.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DUTs\Recipe\ST_PullWheelsRecipe.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -64,7 +67,58 @@
     <Compile Include="Machine\Components\FB_SealBar.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Machine\EquipmentModules\FB_PullWheel.TcPOU">
+    <Compile Include="Machine\Components\MotionLinxAI\Axis\FB_MotionlinxAI_Axis.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\Components\MotionLinxAI\Axis\I_MotionlinxAI_Axis.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\Components\MotionLinxAI\Axis\MotionlinxAI_Error_States.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\Components\MotionLinxAI\Axis\MotionlinxAI_Motor_Status.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\Components\MotionLinxAI\Axis\ST_MotionlinxAI_Axis_Command.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\Components\MotionLinxAI\Axis\ST_MotionlinxAI_Axis_Config.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\Components\MotionLinxAI\Axis\ST_MotionlinxAI_Axis_HMI.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\Components\MotionLinxAI\Axis\ST_MotionlinxAI_Axis_Status.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\Components\MotionLinxAI\Controller\FB_MotionlinxAI_Controller.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\Components\MotionLinxAI\Controller\I_MotionlinxAI_Controller_Sts.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\Components\MotionLinxAI\Controller\ST_Controller_Status.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\Components\MotionLinxAI\Controller\ST_MotionlinxAI_Controller_Command.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\Components\MotionLinxAI\Controller\ST_MotionlinxAI_Controller_Config.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\Components\MotionLinxAI\Controller\ST_MotionlinxAI_Controller_HMI.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\Components\MotionLinxAI\Controller\ST_MotionlinxAI_Controller_Status.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\Components\MotionLinxAI\MotionlinxAI_States.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\EquipmentModules\Conveyors\FB_Single_Drive_Outfeed_Sensor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\EquipmentModules\Conveyors\ST_ConveyorRecipe.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Machine\EquipmentModules\FB_Station_2.TcPOU">
@@ -79,13 +133,19 @@
     <Compile Include="Machine\EquipmentModules\FB_Station_3.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Machine\EquipmentModules\FB_Unwind.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Machine\EquipmentModules\FB_Sealer.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Machine\EquipmentModules\FB_Station_1.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\EquipmentModules\No Used\FB_PullWheel.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\EquipmentModules\No Used\FB_Sealer.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\EquipmentModules\No Used\FB_Unwind.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\EquipmentSubModules\FB_MotionlinxAI_ControllerMotor.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Machine\FB_Machine.TcPOU">
@@ -127,8 +187,14 @@
     <Folder Include="Machine" />
     <Folder Include="Machine\Components" />
     <Folder Include="Machine\Components\Cylinder" />
+    <Folder Include="Machine\Components\MotionLinxAI" />
+    <Folder Include="Machine\Components\MotionLinxAI\Axis" />
+    <Folder Include="Machine\Components\MotionLinxAI\Controller" />
     <Folder Include="Machine\EquipmentModules" />
     <Folder Include="DUTs" />
+    <Folder Include="Machine\EquipmentModules\Conveyors" />
+    <Folder Include="Machine\EquipmentModules\No Used" />
+    <Folder Include="Machine\EquipmentSubModules" />
     <Folder Include="Machine\HMI Connections" />
     <Folder Include="Machine\Events" />
     <Folder Include="Machine\Templates" />
@@ -387,6 +453,26 @@
     <PlaceholderResolution Include="VisuDialogs">
       <Resolution>VisuDialogs, 3.5.12.0 (System)</Resolution>
     </PlaceholderResolution>
+  </ItemGroup>
+  <ItemGroup>
+    <SubObject Include="FB_MotionlinxAI_Axis.HasFault">
+      <ExcludeFromBuild>true</ExcludeFromBuild>
+    </SubObject>
+    <SubObject Include="FB_MotionlinxAI_Controller.EmergencyStop">
+      <ExcludeFromBuild>true</ExcludeFromBuild>
+    </SubObject>
+    <SubObject Include="FB_MotionlinxAI_Controller.Enable">
+      <ExcludeFromBuild>true</ExcludeFromBuild>
+    </SubObject>
+    <SubObject Include="FB_MotionlinxAI_Controller.FaultLocation">
+      <ExcludeFromBuild>true</ExcludeFromBuild>
+    </SubObject>
+    <SubObject Include="FB_MotionlinxAI_Controller.stop">
+      <ExcludeFromBuild>true</ExcludeFromBuild>
+    </SubObject>
+    <SubObject Include="FB_Single_Drive_Outfeed_Sensor.CyclicLogic_Simulation">
+      <ExcludeFromBuild>true</ExcludeFromBuild>
+    </SubObject>
   </ItemGroup>
   <ProjectExtensions>
     <PlcProjectOptions>

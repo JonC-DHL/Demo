@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.16">
+  <Itf Name="I_MotionlinxAI_Controller_Sts" Id="{a046ab96-f8fa-4984-b1f3-79fa86067b87}">
+    <Declaration><![CDATA[INTERFACE I_MotionlinxAI_Controller_Sts
+]]></Declaration>
+    <Method Name="Disable" Id="{4f4aeead-ad71-450a-b160-1fb8d3cbc005}">
+      <Declaration><![CDATA[METHOD Disable : BOOL
+(*BRAKING MODES:
+	0 : NORMAL - HOLDS IN PLACE BY SHORTING WINDINGS
+	1 : FREE - NOT HELD IN PLACE
+	2 : SERVO - MAINTAINS POSITION BASED ON HALLS EFFECT SENSOR*)]]></Declaration>
+    </Method>
+    <Property Name="HasFault" Id="{a74b05ae-7854-45ad-97bc-434b40c1fa1c}">
+      <Declaration><![CDATA[PROPERTY HasFault : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{7beb9d9f-bd27-49ad-a7fb-0c61279507e5}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Sensors" Id="{6bff98a8-d910-4d9a-b9d7-10a67833303e}">
+      <Declaration><![CDATA[PROPERTY Sensors : int]]></Declaration>
+      <Get Name="Get" Id="{e04029be-41ad-42d0-af78-d2025970f813}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>
