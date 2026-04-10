@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.16">
   <POU Name="FB_Safety_Module" Id="{f159b0d9-45d7-4c49-949f-04968caaeb24}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_Safety_Module EXTENDS FB_PackML_BaseModule // IMPLEMENTS I_ControlsProductionRate
 VAR
@@ -135,8 +135,8 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[// Add your event creation here
 F_CreateAllEventsInClass(Alarms		:= MachineSafetyAlarms,
-						 ClassSize	:= SIZEOF(TC_Events.VFFSDemo),
-						 pInitEvent := ADR(TC_EVENTS.VFFSDemo.InitReferenceEvent),
+						 ClassSize	:= SIZEOF(TC_Events.DemoSystem),
+						 pInitEvent := ADR(TC_EVENTS.DemoSystem.InitReferenceEvent),
 						 Prefix		:= Name);
 
 // Super call to base
@@ -955,5 +955,90 @@ IF timeToUpdate > 1 THEN
 END_IF]]></ST>
       </Implementation>
     </Method>
+    <LineIds Name="FB_Safety_Module">
+      <LineId Id="3" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Safety_Module.Completing">
+      <LineId Id="3" Count="6" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Safety_Module.CreateEvents">
+      <LineId Id="3" Count="6" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Safety_Module.CyclicLogic">
+      <LineId Id="3" Count="17" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Safety_Module.CyclicLogic_Simulation">
+      <LineId Id="3" Count="32" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Safety_Module.Execute">
+      <LineId Id="3" Count="56" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Safety_Module.Held">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Safety_Module.HMIPermissions">
+      <LineId Id="3" Count="28" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Safety_Module.HoldImmediate">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Safety_Module.Holding">
+      <LineId Id="3" Count="8" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Safety_Module.Initialize">
+      <LineId Id="3" Count="69" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Safety_Module.Initialize_Recipes">
+      <LineId Id="3" Count="288" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Safety_Module.PackTags.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Safety_Module.RaiseAlarm2Args">
+      <LineId Id="3" Count="2" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Safety_Module.Resetting">
+      <LineId Id="3" Count="28" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Safety_Module.Starting">
+      <LineId Id="3" Count="8" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Safety_Module.SubModuleMonitor">
+      <LineId Id="3" Count="45" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Safety_Module.Suspended">
+      <LineId Id="3" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Safety_Module.Suspending">
+      <LineId Id="3" Count="8" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Safety_Module.Unholding">
+      <LineId Id="3" Count="6" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Safety_Module.Unsuspending">
+      <LineId Id="3" Count="6" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Safety_Module.UpdateModeTimers">
+      <LineId Id="3" Count="21" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
   </POU>
 </TcPlcObject>

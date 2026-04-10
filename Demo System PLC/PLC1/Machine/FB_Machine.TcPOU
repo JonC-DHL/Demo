@@ -138,8 +138,8 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[// Add your event creation here
 F_CreateAllEventsInClass(Alarms		:= MachineAlarms,
-						 ClassSize	:= SIZEOF(TC_Events.VFFSDemo),
-						 pInitEvent := ADR(TC_EVENTS.VFFSDemo.InitReferenceEvent),
+						 ClassSize	:= SIZEOF(TC_Events.DemoSystem),
+						 pInitEvent := ADR(TC_EVENTS.DemoSystem.InitReferenceEvent),
 						 Prefix		:= Name);
 
 // Super call to base
@@ -185,35 +185,35 @@ END_VAR]]></Declaration>
 This is just for testing. Real hardware can be setup in other places
 Here the alarms will raise and clear on its own if the input changes	
 *)
-IF EstopInput AND NOT MachineAlarms[E_VFFSDemo.EmergencyStop].bRaised THEN
-	RaiseAlarm2Args(MachineAlarms[E_VFFSDemo.EmergencyStop], '', '');
-ELSIF NOT EstopInput AND MachineAlarms[E_VFFSDemo.EmergencyStop].bRaised THEN
-	MachineAlarms[E_VFFSDemo.EmergencyStop].Clear(0, 0);
+IF EstopInput AND NOT MachineAlarms[E_DemoSystem.EmergencyStop].bRaised THEN
+	RaiseAlarm2Args(MachineAlarms[E_DemoSystem.EmergencyStop], '', '');
+ELSIF NOT EstopInput AND MachineAlarms[E_DemoSystem.EmergencyStop].bRaised THEN
+	MachineAlarms[E_DemoSystem.EmergencyStop].Clear(0, 0);
 END_IF
 
-IF LowAirInput AND NOT MachineAlarms[E_VFFSDemo.LowAir].bRaised THEN
-	RaiseAlarm2Args(MachineAlarms[E_VFFSDemo.LowAir], '', '');
-ELSIF NOT LowAirInput AND MachineAlarms[E_VFFSDemo.LowAir].bRaised THEN
-	MachineAlarms[E_VFFSDemo.LowAir].Clear(0, 0);
+IF LowAirInput AND NOT MachineAlarms[E_DemoSystem.LowAir].bRaised THEN
+	RaiseAlarm2Args(MachineAlarms[E_DemoSystem.LowAir], '', '');
+ELSIF NOT LowAirInput AND MachineAlarms[E_DemoSystem.LowAir].bRaised THEN
+	MachineAlarms[E_DemoSystem.LowAir].Clear(0, 0);
 END_IF
 
 //Generic Alarms for Testing
-IF ErrorInput AND NOT MachineAlarms[E_VFFSDemo.AlarmMessage].bRaised THEN
-	RaiseAlarm2Args(MachineAlarms[E_VFFSDemo.AlarmMessage], '', '');
-ELSIF NOT ErrorInput AND MachineAlarms[E_VFFSDemo.AlarmMessage].bRaised THEN
-	MachineAlarms[E_VFFSDemo.AlarmMessage].Clear(0, 0);
+IF ErrorInput AND NOT MachineAlarms[E_DemoSystem.AlarmMessage].bRaised THEN
+	RaiseAlarm2Args(MachineAlarms[E_DemoSystem.AlarmMessage], '', '');
+ELSIF NOT ErrorInput AND MachineAlarms[E_DemoSystem.AlarmMessage].bRaised THEN
+	MachineAlarms[E_DemoSystem.AlarmMessage].Clear(0, 0);
 END_IF
 
-IF WarnInput AND NOT MachineAlarms[E_VFFSDemo.WarnMessage].bRaised THEN
-	RaiseAlarm2Args(MachineAlarms[E_VFFSDemo.WarnMessage], '', '');
-ELSIF NOT WarnInput AND MachineAlarms[E_VFFSDemo.WarnMessage].bRaised THEN
-	MachineAlarms[E_VFFSDemo.WarnMessage].Clear(0, 0);
+IF WarnInput AND NOT MachineAlarms[E_DemoSystem.WarnMessage].bRaised THEN
+	RaiseAlarm2Args(MachineAlarms[E_DemoSystem.WarnMessage], '', '');
+ELSIF NOT WarnInput AND MachineAlarms[E_DemoSystem.WarnMessage].bRaised THEN
+	MachineAlarms[E_DemoSystem.WarnMessage].Clear(0, 0);
 END_IF
 
-IF InfoInput AND NOT MachineAlarms[E_VFFSDemo.InfoMessage].bRaised THEN
-	RaiseAlarm2Args(MachineAlarms[E_VFFSDemo.InfoMessage], '', '');
-ELSIF NOT InfoInput AND MachineAlarms[E_VFFSDemo.InfoMessage].bRaised THEN
-	MachineAlarms[E_VFFSDemo.InfoMessage].Clear(0, 0);
+IF InfoInput AND NOT MachineAlarms[E_DemoSystem.InfoMessage].bRaised THEN
+	RaiseAlarm2Args(MachineAlarms[E_DemoSystem.InfoMessage], '', '');
+ELSIF NOT InfoInput AND MachineAlarms[E_DemoSystem.InfoMessage].bRaised THEN
+	MachineAlarms[E_DemoSystem.InfoMessage].Clear(0, 0);
 END_IF]]></ST>
       </Implementation>
     </Method>
