@@ -1,0 +1,216 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="FB_A100" Id="{87fe144f-91bf-4463-866e-8a0be16a3639}" SpecialFunc="None">
+    <Declaration><![CDATA[(*	This FB is used for a single output solenoid 
+	It uses the times to say when Extended/Retracted  	
+	It starts assuming retracted and the output off.
+*)
+FUNCTION_BLOCK FB_A100 EXTENDS FB_ComponentBase IMPLEMENTS I_Cylinder
+VAR
+	//Output
+	Output AT %Q* : BOOL;
+
+	// Internal variables
+	_ExtendRequest	: BOOL;
+	_RetractRequest : BOOL;
+	_Extended		: BOOL;
+	_Retracted		: BOOL;
+	_Extending		: BOOL;
+	_Retracting		: BOOL;
+	_ExtendTime		: LREAL := 1000; // Default time 1s
+	_RetractTime	: LREAL := 1000; // Default time 1s
+
+	// Timer for Extend/Retract
+	Extend_TON	  : TON;
+	Retract_TON	  : TON;
+	Extend_RTRIG  : R_TRIG;
+	Retract_RTRIG : R_TRIG;
+
+	//HMI 
+	Cylinder_HMI : ST_Cylinder_HMI;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="I_ComponentBase" Id="{270d4e9b-42c5-4718-80af-72f72ac26dae}" />
+    <Folder Name="I_CyclicFB" Id="{42980e1a-7cb7-48c4-8fdd-4239c59da53f}" />
+    <Folder Name="I_Cylinder" Id="{10f80a7f-327a-4f30-8855-e0c504bc3c85}" />
+    <Method Name="CreateEvents" Id="{ef9822f7-1819-4204-afad-c79a63fa0e6b}" FolderPath="I_ComponentBase\">
+      <Declaration><![CDATA[METHOD PROTECTED CreateEvents
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.CreateEvents();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CyclicLogic" Id="{da25161b-1e8e-4069-9a00-d8c255469adf}" FolderPath="I_CyclicFB\">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//One shot the requests
+Extend_RTRIG(CLK := _ExtendRequest);
+Retract_RTRIG(CLK := _RetractRequest);
+
+//Handle Extend
+IF Extend_RTRIG.Q THEN
+	Output			:= TRUE;
+	_Extending		:= TRUE;
+	_Retracting		:= FALSE;
+	_Retracted		:= FALSE;
+	_RetractRequest := FALSE;
+END_IF
+
+//Handle Retract
+IF Retract_RTRIG.Q THEN
+	Output		   := FALSE;
+	_Extending	   := FALSE;
+	_Retracting	   := TRUE;
+	_Extended	   := FALSE;
+	_ExtendRequest := FALSE;
+END_IF
+
+//Handle the time to Extend/Retract
+Extend_TON(IN := _Extending, PT := LREAL_TO_TIME(_ExtendTime));
+Retract_TON(IN := _Retracting, PT := LREAL_TO_TIME(_RetractTime));
+IF Extend_TON.Q THEN
+	_Extended  := TRUE;
+	_Extending := FALSE;
+END_IF
+
+IF Retract_TON.Q THEN
+	_Retracted	:= TRUE;
+	_Retracting := FALSE;
+END_IF
+
+SUPER^.CyclicLogic();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Extend" Id="{2920103e-ded4-4315-8552-f17e6d19939b}" FolderPath="I_Cylinder\">
+      <Declaration><![CDATA[METHOD Extend]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_ExtendRequest	:= TRUE;
+_RetractRequest := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Extended" Id="{9d073ffe-27d2-44c4-8434-115418ff6a6b}" FolderPath="I_Cylinder\">
+      <Declaration><![CDATA[PROPERTY Extended : BOOL]]></Declaration>
+      <Get Name="Get" Id="{e34b18d7-e84d-4d6a-ad83-767deaa59ee8}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Extended := _Extended;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ExtendTime" Id="{eef525ff-2de2-4293-a070-9330070bcc30}" FolderPath="I_Cylinder\">
+      <Declaration><![CDATA[PROPERTY ExtendTime : LREAL]]></Declaration>
+      <Get Name="Get" Id="{f4470ef6-f539-4f58-83f1-bfccc36021c9}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ExtendTime := _ExtendTime;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{bfdcce58-453d-4af5-9c8b-a488d521a299}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="HMICommunication" Id="{99929a9e-4c33-4954-8e54-38c6f8dead3c}" FolderPath="I_ComponentBase\">
+      <Declaration><![CDATA[METHOD PROTECTED HMICommunication
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.HMICommunication();
+
+//Handle the requests to extend and retract
+IF ComponentBase_HMI.Status.HMIControlAvailable THEN
+	IF Cylinder_HMI.Command.Extend THEN
+		Extend();
+	ELSIF Cylinder_HMI.Command.Retract THEN
+		Retract();
+	END_IF
+END_IF
+
+//Update HMI status info
+Cylinder_HMI.Status.Extended	:= _Extended;
+Cylinder_HMI.Status.Extending	:= _Extending;
+Cylinder_HMI.Status.Retracted	:= _Retracted;
+Cylinder_HMI.Status.Retracting	:= _Retracting;
+Cylinder_HMI.Config.ExtendTime	:= _ExtendTime;
+Cylinder_HMI.Config.RetractTime := _RetractTime;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Initialize" Id="{54d5e6b7-645f-4516-a459-924d0a334915}">
+      <Declaration><![CDATA[//! @summary Basic component initialization logic
+METHOD PROTECTED Initialize : BOOL;
+
+//! @description This method is called by <c>CyclicLogic()</c> as required]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//Set the cylinder to retracted
+IF Output THEN
+	_Extended  := TRUE;
+	_Retracted := FALSE;
+ELSE
+	_Extended  := FALSE;
+	_Retracted := TRUE;
+END_IF
+
+_Extending		:= FALSE;
+_ExtendRequest	:= FALSE;
+_Retracting		:= FALSE;
+_RetractRequest := FALSE;
+
+//Call base class Initialize
+Initialize := SUPER^.Initialize();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Monitoring" Id="{700cde58-0ddd-4984-b1f6-d1258ad0e5e0}" FolderPath="I_ComponentBase\">
+      <Declaration><![CDATA[METHOD PROTECTED Monitoring
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Busy	 := _Extending OR _Retracting;
+_Error	 := FALSE;
+_ErrorID := 0;
+SUPER^.Monitoring();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Retract" Id="{9ac69fc0-6d91-4bed-ac3a-440904a4bc84}" FolderPath="I_Cylinder\">
+      <Declaration><![CDATA[METHOD Retract]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_ExtendRequest	:= FALSE;
+_RetractRequest := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Retracted" Id="{0ec39df9-2f65-436b-9475-723d6e4c5480}" FolderPath="I_Cylinder\">
+      <Declaration><![CDATA[PROPERTY Retracted : BOOL]]></Declaration>
+      <Get Name="Get" Id="{227cf16c-14d4-46ac-985f-80be1f8427bd}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Retracted := _Retracted;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="RetractTime" Id="{3fcda7d3-15b1-48f7-aeb8-68111ca294e2}" FolderPath="I_Cylinder\">
+      <Declaration><![CDATA[PROPERTY RetractTime : LREAL]]></Declaration>
+      <Get Name="Get" Id="{52f1fc21-4cf3-471c-9d75-529d30a9fae6}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[RetractTime := _RetractTime;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{694bf6a4-6c4e-45e6-b3fc-8125ce67b3e2}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_RetractTime := RetractTime;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="FB_Omron_Inv" Id="{1f5cda4b-8c9e-495c-9cbf-e32b31d9573a}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Omron_Inv EXTENDS FB_ComponentBase
+VAR
+	// Data
+	_SetTemperature	   : LREAL;
+	_ActualTemperature : LREAL;
+
+	// IO
+	_Heat AT %Q* : BOOL;
+
+	// Other items
+	TempUpdate	 : TON;
+	_InTempRange : BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="I_ComponentBase" Id="{036e2951-221f-432b-806a-55d1520966ba}" />
+    <Folder Name="I_CyclicFB" Id="{0ba0ab25-9c32-4537-8f9a-d985458c36e5}" />
+    <Folder Name="I_SealBar" Id="{c82a40de-4317-48a4-aebf-f7596bbe1a82}" />
+    <Property Name="ActualTemperature" Id="{4dfc088b-1c67-4477-a4bb-36a1c1cb570b}" FolderPath="I_SealBar\">
+      <Declaration><![CDATA[PROPERTY ActualTemperature : LREAL]]></Declaration>
+      <Get Name="Get" Id="{dbbe3ef7-19de-4a5c-83ae-3f248337df5b}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActualTemperature := _ActualTemperature;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{347c823a-8712-4a6c-978f-6cf5d5a172b0}" FolderPath="I_CyclicFB\">
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT _InitComplete THEN
+	_InitComplete := Initialize();
+	RETURN;
+END_IF
+
+SUPER^.CyclicLogic();
+
+//Read data from Parameters
+
+/// Set from the property SetTemperature := _Param[SETTEMP].Value;
+
+(*Temperature for simulation of temperature changes
+This will add 0.3 every 100ms to actual until it gets to Setpoint
+It will subtract 0.1 degrees every 100ms unitl it is down to setpoint or 20
+Do not set below 20 or it will not get passed resetting*)
+TempUpdate(IN := NOT TempUpdate.Q, PT := T#100MS);
+IF TempUpdate.Q THEN
+	IF _Heat AND _ActualTemperature < _SetTemperature THEN
+		_ActualTemperature := _ActualTemperature + 0.3;
+	ELSIF _ActualTemperature > 20 THEN
+		_ActualTemperature := _ActualTemperature - 0.1;
+	END_IF
+END_IF
+
+IF ABS(_SetTemperature - _ActualTemperature) < 1 THEN
+	_InTempRange := TRUE;
+ELSE
+	_InTempRange := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Heat" Id="{49a8f8e0-22d9-4067-9f48-d293d8eca062}" FolderPath="I_SealBar\">
+      <Declaration><![CDATA[PROPERTY Heat : BOOL]]></Declaration>
+      <Get Name="Get" Id="{304c97aa-4a82-421b-a531-9ec8c8f422a5}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Heat := _Heat;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{d166b01f-69b5-4da5-8946-6ab0891f7a60}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Heat := Heat;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="InTempRange" Id="{5eb4653b-19d4-438d-abd5-cb4fe858c4b4}" FolderPath="I_SealBar\">
+      <Declaration><![CDATA[PROPERTY InTempRange : BOOL]]></Declaration>
+      <Get Name="Get" Id="{2d5da934-091d-453a-90c3-251bf552c379}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[InTempRange := _InTempRange;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="SetTemperature" Id="{69bf630d-dc1b-4b5f-b65a-8acba5386b08}" FolderPath="I_SealBar\">
+      <Declaration><![CDATA[PROPERTY SetTemperature : LREAL]]></Declaration>
+      <Get Name="Get" Id="{792df11e-84ff-4764-8dca-fa225e1e2b71}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SetTemperature := _SetTemperature;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{5173585b-4f3d-4f29-8125-1f6529a33731}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_SetTemperature := SetTemperature;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>

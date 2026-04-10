@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4024.68" ClassName="CDevEtherCATDef" SubType="111">
+	<Device Id="5" DevType="111" DevFlags="#x0003" AmsPort="28677" AmsNetId="192.168.100.70.6.1" RemoteName="Device 5 (EtherCAT)" InfoImageId="6">
+		<Name>__FILENAME__</Name>
+		<AddressInfo>
+			<TcCom>
+				<ObjectId>#x03010021</ObjectId>
+			</TcCom>
+		</AddressInfo>
+		<Image Id="5" AddrType="9" ImageType="3">
+			<Name>Image</Name>
+		</Image>
+		<Box File="Box 1 (CU2508).xti" Id="1">
+			<EtherCAT PortABoxInfo="#x00ffffff"/>
+		</Box>
+		<Box File="Term 2 (EK1100).xti" Id="2">
+			<EtherCAT PortABoxInfo="#x01000001"/>
+		</Box>
+		<Box File="Box 18 (MotionLinx-Ai PLCmode).xti" Id="18">
+			<EtherCAT PortABoxInfo="#x02000002"/>
+		</Box>
+		<EtherCAT/>
+	</Device>
+	<Mappings>
+		<OwnerA>
+			<OwnerB Name="TIID^Device 5 (EtherCAT)">
+				<Link VarA="Term 2 (EK1100)^Term 3 (EL1904)^Module 1 (FSOES)^RxPDO^FSOE" VarB="Term 2 (EK1100)^Term 6 (EL6900)^ConnectionInputs^Message_5 TxPDO"/>
+				<Link VarA="Term 2 (EK1100)^Term 3 (EL1904)^Module 1 (FSOES)^TxPDO^FSOE" VarB="Term 2 (EK1100)^Term 6 (EL6900)^ConnectionOutputs^Message_5 RxPDO"/>
+				<Link VarA="Term 2 (EK1100)^Term 5 (EL2904)^Module 1 (FSOES)^RxPDO^FSOE" VarB="Term 2 (EK1100)^Term 6 (EL6900)^ConnectionInputs^Message_7 TxPDO"/>
+				<Link VarA="Term 2 (EK1100)^Term 5 (EL2904)^Module 1 (FSOES)^TxPDO^FSOE" VarB="Term 2 (EK1100)^Term 6 (EL6900)^ConnectionOutputs^Message_7 RxPDO"/>
+				<Link VarA="Term 2 (EK1100)^Term 6 (EL6900)^ConnectionInputs^Message_5 TxPDO" VarB="Term 2 (EK1100)^Term 3 (EL1904)^Module 1 (FSOES)^RxPDO^FSOE"/>
+				<Link VarA="Term 2 (EK1100)^Term 6 (EL6900)^ConnectionInputs^Message_7 TxPDO" VarB="Term 2 (EK1100)^Term 5 (EL2904)^Module 1 (FSOES)^RxPDO^FSOE"/>
+				<Link VarA="Term 2 (EK1100)^Term 6 (EL6900)^ConnectionOutputs^Message_5 RxPDO" VarB="Term 2 (EK1100)^Term 3 (EL1904)^Module 1 (FSOES)^TxPDO^FSOE"/>
+				<Link VarA="Term 2 (EK1100)^Term 6 (EL6900)^ConnectionOutputs^Message_7 RxPDO" VarB="Term 2 (EK1100)^Term 5 (EL2904)^Module 1 (FSOES)^TxPDO^FSOE"/>
+			</OwnerB>
+		</OwnerA>
+	</Mappings>
+</TcSmItem>

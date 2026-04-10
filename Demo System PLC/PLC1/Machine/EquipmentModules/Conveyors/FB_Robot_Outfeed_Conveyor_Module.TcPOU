@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="FB_Robot_Outfeed_Conveyor_Module" Id="{81e551ce-9f50-4215-b9a6-f9befc097458}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Robot_Outfeed_Conveyor_Module EXTENDS FB_Station_Module
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*
+Controls the outfeed conveyor for a robot, when item in place, indicates to robot to run object removal and allows another object to be fed in
+
+
+
+
+*)]]></ST>
+    </Implementation>
+    <Method Name="Execute" Id="{f515eac7-4f59-4cd3-a4d8-ea1338c62532}">
+      <Declaration><![CDATA[METHOD PROTECTED FINAL Execute
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE _CurrentMode OF
+	//=================================PRODUCTION MODE==================================
+	E_PMLUnitMode.ePMLUnitMode_Production:
+		CASE SequenceState OF
+			0:
+				NoStateTasksToComplete := FALSE;
+				IF 	Sensor.Active THEN
+					SequenceState := SequenceState + 10;
+				END_IF
+		
+			10:
+			//	NoStateTasksToComplete := FALSE;
+			
+				Deceleration := Recipe.Axis.Deceleration;
+				Axis.Stop();
+				SequenceState := SequenceState + 10;
+
+			20:
+				IF Axis.Stopped THEN
+					SequenceState := SequenceState + 10;
+				END_IF
+
+			30:
+				StateComplete();
+		END_CASE
+	
+	i	:= i +1;
+	
+		(* Run the sequence to make products 
+		 Unwind Runs Slowly 
+		 Pull Wheels Run 
+		 Jaws Seal, and Repeat until production reached*)
+//		sealTrig(CLK := SequenceState = 10);
+//		IF sealTrig.Q THEN
+//			partTimeStart := F_GetActualDcTime64();
+//			sealTimeStart := partTimeStart;
+//		END_IF
+
+//		pulltrig(CLK := SequenceState = 20);
+//		IF pulltrig.Q THEN
+//			pullTimeStart := F_GetActualDcTime64();
+//		END_IF
+
+	//	Buffer_1.ChangeState(E_PMLCommand.ePMLCommand_Start);
+
+		
+		
+//		IF THIS^.Sealer.sealbar.InTempRange THEN
+//			CASE SequenceState OF
+//				0: //Started
+//					Unwind.ChangeState(E_PMLCommand.ePMLCommand_Start);
+//					IF Unwind.CurrentState = E_PMLState.ePMLState_Execute THEN
+//						SequenceState := SequenceState + 10;
+//					END_IF
+
+//				10: // SEAL First
+//					Sealer.ChangeState(E_PMLCommand.ePMLCommand_Start);
+//					IF Sealer.CurrentState = E_PMLState.ePMLState_Complete THEN
+//						Sealer.ChangeState(E_PMLCommand.ePMLCommand_Reset);
+//						SequenceState := SequenceState + 10;
+//						SealTimeEnd	  := F_GetActualDcTime64();
+//						sealingTime	  := ULINT_TO_LREAL(sealtimeEnd - sealTimeStart) * 1E-9;
+//					END_IF
+
+//				20: // Run Pullwheels
+//					PullWheels.ChangeState(E_PMLCommand.ePMLCommand_Start);
+//					IF PullWheels.CurrentState = E_PMLState.ePMLState_Complete THEN
+//						partTimeEnd	  := F_GetActualDcTime64();
+//						parts		  := parts + 1;
+//						SequenceState := 10;
+//						PullWheels.ChangeState(E_PMLCommand.ePMLCommand_Reset);
+//						pullTimeEnd := F_GetActualDcTime64();
+//						pullingTime := ULINT_TO_LREAL(pullTimeEnd - pullTimeStart) * 1E-9;
+//					END_IF
+//			END_CASE
+//		ELSE
+//			ChangeState(E_PMLCommand.ePMLCommand_Suspend);
+//		END_IF
+
+	//=================================MAINTENANCE MODE==================================	
+	E_PMLUnitMode.ePMLUnitMode_Maintenance:
+		;
+
+	//=================================MANUAL MODE==================================
+	E_PMLUnitMode.ePMLUnitMode_Manual:
+		;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,399 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.16">
+  <POU Name="DM_Omron_Drive" Id="{c30314f5-80d7-4c18-af5d-f8213f76f92c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK DM_Omron_Drive IMPLEMENTS iDM_DriveHealth
+VAR CONSTANT
+	MIN_LIBRARY_VERSION : DM_LIBRARY_VERSION := DM_LIBRARY_VERSION.V_20240925;
+END_VAR
+VAR_INPUT
+	bRun : BOOL;
+	rFreq : REAL;
+	bReverse: BOOL := FALSE;
+	nAccelTime : UINT := 200;
+	nDecelTime : UINT := 200;	
+END_VAR
+VAR_IN_OUT
+	stDeviceMapping : stOmronDriveMapping;
+END_VAR
+VAR_OUTPUT
+	DriveState : eDriveStates := eDriveStates.FAULT;
+	
+	bDI1: BOOL;
+	bDI2: BOOL;
+	bDI3: BOOL;
+	bDI4: BOOL;
+	bDI5: BOOL;
+	bDI6: BOOL;
+	bDI7: BOOL;
+	bEN1: BOOL;
+	bEN2: BOOL;
+	bDriveOK : BOOL;
+	sOmronDriveStatus: STRING;			
+	
+END_VAR
+VAR
+	RequestedState : eDriveStates := eDriveStates.AWAITING_RESET;	
+
+	bEnabled : BOOL;
+	bInitReversed : BOOL;
+	bError : BOOL;
+	
+	
+	eDeviceStatus : eOmronStatus;
+	
+	bRunningForward : BOOL;
+	bRunningReverse : BOOL;
+	bFault : BOOL;
+	bWarning : BOOL;
+	bRemoteEnabled : BOOL;
+	bFrequencyMatching : BOOL;
+	bConnectionError : BOOL;
+	bECDisconnected : BOOL;
+	
+	blinkErrorAck : FB_BLINKER_PLAY;
+	
+	tpErrorReset : TP;
+	bResetReq : BOOL;
+	
+	sDriveName : STRING(50);
+	tonFailedStartTimeout : TON;
+	bResetTried: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//Set Drive Status
+aSetStatus();
+aStateMachine();
+aInputMapping();
+
+stDeviceMapping.onDecelTime := nDecelTime;
+stDeviceMapping.onAccelTime := nAccelTime;
+
+//Run Stop Control
+IF DriveState >= eDriveStates.STOPPED THEN
+	IF bRun THEN
+	 	RequestedState := eDriveStates.RUNNING;
+	ELSE
+		RequestedState := eDriveStates.STOPPED;
+	END_IF
+END_IF
+
+
+IF DriveState >= eDriveStates.STARTING THEN
+	IF bReverse XOR bInitReversed THEN
+		stDeviceMapping.onCommand.0 := FALSE;
+		stDeviceMapping.onCommand.1 := TRUE;
+	ELSE
+		stDeviceMapping.onCommand.0 := TRUE;
+		stDeviceMapping.onCommand.1 := FALSE;
+	END_IF
+ELSE	
+	stDeviceMapping.onCommand.0 := stDeviceMapping.onCommand.1 := FALSE;
+END_IF
+
+tonFailedStartTimeout(IN:= DriveState = eDriveStates.RUNNING AND stDeviceMapping.inMotorCurrent = 0 , PT := T#5S);
+IF tonFailedStartTimeout.Q THEN 
+	IF NOT bResetTried THEN 
+		Reset();
+		bResetTried := TRUE;
+	ELSE
+		Disable();
+	END_IF
+END_IF]]></ST>
+    </Implementation>
+    <Action Name="aInputMapping" Id="{16c62df6-47ed-46a6-85e1-295b997d5516}">
+      <Implementation>
+        <ST><![CDATA[bDI1 := stDeviceMapping.inInputTerminal.2;
+bDI2 := stDeviceMapping.inInputTerminal.3;
+bDI3 := stDeviceMapping.inInputTerminal.4;
+bDI4 := stDeviceMapping.inInputTerminal.5;
+bDI5 := stDeviceMapping.inInputTerminal.6;
+bDI6 := stDeviceMapping.inInputTerminal.0; 
+bDI7 := stDeviceMapping.inInputTerminal.1;
+bEN1 := stDeviceMapping.inInputTerminal.11;
+bEN2 := stDeviceMapping.inInputTerminal.12;
+
+
+bRunningForward 	:= stDeviceMapping.inStatus.0;
+bRunningReverse 	:= stDeviceMapping.inStatus.1;
+bFault 				:= stDeviceMapping.inStatus.3;
+bWarning 			:= stDeviceMapping.inStatus.7;
+bRemoteEnabled		:= stDeviceMapping.inStatus.9;
+bFrequencyMatching	:= stDeviceMapping.inStatus.12;
+bConnectionError	:= stDeviceMapping.inStatus.15;
+bECDisconnected		:= stDeviceMapping.ibWcState;
+
+stDeviceMapping.onFrequencyRef 		:= REAL_TO_UINT(rFreq * 100.0);
+
+bDriveOK := (eDeviceStatus>=4);
+bError := eDeviceStatus < eOmronStatus.AWATING_RESET;]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="aSetStatus" Id="{acf1ed99-b4f2-4363-8cd3-a0fcdd64c876}">
+      <Implementation>
+        <ST><![CDATA[IF bFault AND stDeviceMapping.inSTOActive THEN
+	eDeviceStatus := eOmronStatus.AWATING_RESET;
+ELSIF bFault THEN
+	eDeviceStatus := eOmronStatus.FAULT;
+ELSIF bECDisconnected THEN
+	eDeviceStatus := eOmronStatus.DRIVE_DISCONNECTED;
+ELSIF bConnectionError THEN
+	eDeviceStatus := eOmronStatus.CONNECTION_ERROR;
+ELSIF bWarning THEN
+	eDeviceStatus := eOmronStatus.WARNING;
+ELSIF (bRunningForward OR bRunningReverse) AND bFrequencyMatching THEN
+	eDeviceStatus := eOmronStatus.RUNNING;
+ELSIF bRemoteEnabled THEN
+	eDeviceStatus := eOmronStatus.READY;
+
+END_IF]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="aStateMachine" Id="{7ba23966-7790-4806-8aee-38ab4c07659c}">
+      <Implementation>
+        <ST><![CDATA[CASE DriveState OF
+	////////////////////////////////////////////////////
+	eDriveStates.FAULT:
+	
+		blinkErrorAck(bStartPulser := bError, tTimeDelayON := T#0.1S, tTimeDelayOFF := T#0.1S, tTimeGap := T#0.5S, nNoOfBlinks := 3, bPulseComplete => stDeviceMapping.onCommand.7);
+		IF NOT bError THEN
+			DriveState := eDriveStates.AWAITING_RESET;
+		END_IF;
+		
+	////////////////////////////////////////////////////
+	eDriveStates.FAULT_STOPPING:
+		Disable();
+		DriveState := eDriveStates.FAULT;
+		
+	////////////////////////////////////////////////////
+	eDriveStates.AWAITING_RESET:
+		IF RequestedState = eDriveStates.RESET THEN
+			DriveState := eDriveStates.RESET;
+		END_IF;
+		IF berror THEN			
+			DriveState := eDriveStates.FAULT;
+		END_IF
+	
+	////////////////////////////////////////////////////
+	eDriveStates.RESET:	
+		IF NOT bError AND bRemoteEnabled THEN
+			DriveState := RequestedState := eDriveStates.STOPPED;
+		END_IF
+		IF berror THEN			
+			DriveState := eDriveStates.FAULT;
+		END_IF
+	
+	////////////////////////////////////////////////////
+	eDriveStates.DISABLED:		
+		IF bEnabled THEN
+			DriveState := eDriveStates.STOPPED;
+		END_IF;
+		IF berror THEN			
+			DriveState := eDriveStates.FAULT;
+		END_IF
+					
+	////////////////////////////////////////////////////	
+	eDriveStates.STOPPED:
+		IF RequestedState = eDriveStates.RUNNING THEN
+			DriveState := eDriveStates.RUNNING;
+		END_IF
+		
+		IF RequestedState = eDriveStates.RESET THEN
+			DriveState := eDriveStates.AWAITING_RESET;
+		END_IF
+		
+		IF NOT bEnabled OR RequestedState = eDriveStates.DISABLED THEN
+			DriveState := eDriveStates.DISABLED;
+		END_IF
+		IF bError THEN			
+			DriveState := eDriveStates.FAULT;
+		END_IF
+
+	////////////////////////////////////////////////////		
+	eDriveStates.STOPPING:
+		IF stDeviceMapping.inOutputFrequency = 0 OR bError THEN
+			DriveState := eDriveStates.STOPPED;
+		END_IF
+	
+	////////////////////////////////////////////////////	
+	eDriveStates.STARTING:
+		IF bFrequencyMatching THEN
+			DriveState := eDriveStates.RUNNING;
+		END_IF
+		
+		IF bError OR RequestedState < eDriveStates.STARTING THEN
+			DriveState := eDriveStates.STOPPING;
+		END_IF
+		
+	////////////////////////////////////////////////////
+	eDriveStates.RUNNING:		
+		IF RequestedState <> eDriveStates.RUNNING OR NOT bRun OR bError THEN
+			DriveState := eDriveStates.STOPPING;
+		END_IF
+		
+END_CASE]]></ST>
+      </Implementation>
+    </Action>
+    <Method Name="Disable" Id="{1afb4346-32a7-4a23-a9dc-5d68001cc737}">
+      <Declaration><![CDATA[METHOD Disable : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[bEnabled := FALSE;
+IF DriveState >= eDriveStates.STOPPED THEN
+	RequestedState := eDriveStates.DISABLED;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Enable" Id="{eb7ad36f-9ea9-4a31-a7e7-7b87b130cf76}">
+      <Declaration><![CDATA[METHOD Enable : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[bEnabled := TRUE;
+bResetTried := FALSE;
+IF DriveState >= eDriveStates.DISABLED THEN
+	RequestedState := eDriveStates.STOPPED;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="FaultLocation" Id="{e01949c2-f04c-475b-8be7-76b529500fa0}">
+      <Declaration><![CDATA[PROPERTY FaultLocation : STRING(50)
+]]></Declaration>
+      <Get Name="Get" Id="{907c62df-2c0c-4de0-9914-bd258cb0723f}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[FaultLocation := sDriveName;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="FB_init" Id="{1748d5e2-df9c-47d4-b8f1-fb4281fbc571}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+	bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+	bReversed : BOOL;
+	sName : STRING(50);
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[bInitReversed := bReversed;
+sDriveName := sName;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="HasFault" Id="{8349a7c2-b11c-4fbb-bb06-470e086325b7}">
+      <Declaration><![CDATA[PROPERTY HasFault : BOOL]]></Declaration>
+      <Get Name="Get" Id="{650885fa-a609-4beb-97e5-aceb8dc6d3ae}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[HasFault := DriveState = eDriveStates.FAULT;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="IsReady" Id="{8a57bddd-d1da-4146-b0c9-47694a7016c8}">
+      <Declaration><![CDATA[PROPERTY IsReady : BOOL]]></Declaration>
+      <Get Name="Get" Id="{e113a070-fbaa-4283-8ab0-a7247ebcd6a1}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsReady := DriveState >= eDriveStates.DISABLED;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="IsRunning" Id="{ac876e2c-ffb4-4202-afcd-7665148ad50b}">
+      <Declaration><![CDATA[PROPERTY IsRunning : BOOL]]></Declaration>
+      <Get Name="Get" Id="{7b684772-0e31-45ee-b865-5ec709e6353e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsRunning := bFrequencyMatching;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Name" Id="{9425e72c-128a-4b8e-87a1-8d34f6fbe7bc}">
+      <Declaration><![CDATA[PROPERTY Name : STRING(50)]]></Declaration>
+      <Get Name="Get" Id="{8a7851ce-0360-4a87-80ed-403734794464}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Name:=sDriveName;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{28f47ff9-27c2-4e8c-aad1-a73ce466c00b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[sDriveName:=Name;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="Reset" Id="{e9cf9755-6cff-4b7c-8339-c98362f2fec5}">
+      <Declaration><![CDATA[METHOD Reset : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RequestedState := eDriveStates.RESET;]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="DM_Omron_Drive">
+      <LineId Id="3" Count="37" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="DM_Omron_Drive.aInputMapping">
+      <LineId Id="2" Count="22" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="DM_Omron_Drive.aSetStatus">
+      <LineId Id="2" Count="14" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="DM_Omron_Drive.aStateMachine">
+      <LineId Id="2" Count="79" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="DM_Omron_Drive.Disable">
+      <LineId Id="3" Count="2" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="DM_Omron_Drive.Enable">
+      <LineId Id="3" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="DM_Omron_Drive.FaultLocation.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="DM_Omron_Drive.FB_init">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="DM_Omron_Drive.HasFault.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="DM_Omron_Drive.IsReady.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="DM_Omron_Drive.IsRunning.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="DM_Omron_Drive.Name.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="DM_Omron_Drive.Name.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="DM_Omron_Drive.Reset">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <Itf Name="I_Drive_Type_1_Axis" Id="{b4fc8472-a3e3-4a62-8eaa-4b1914b96dc9}">
+    <Declaration><![CDATA[INTERFACE I_Drive_Type_1_Axis]]></Declaration>
+    <Method Name="Drive" Id="{77ce58b4-7975-422a-862d-7785438f932e}">
+      <Declaration><![CDATA[METHOD Drive : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="Position" Id="{b3bd2303-8353-4695-8764-831b802e4171}">
+      <Declaration><![CDATA[PROPERTY Position : real]]></Declaration>
+      <Get Name="Get" Id="{1c2f0225-5620-4a11-87bf-b800f391da16}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{87d49c64-5f25-4f2d-84d1-0c084945ec06}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

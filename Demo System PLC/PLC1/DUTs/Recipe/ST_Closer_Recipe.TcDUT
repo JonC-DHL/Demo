@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <DUT Name="ST_Closer_Recipe" Id="{2601f777-0f47-44de-a274-aab0aa625b06}">
+    <Declaration><![CDATA[TYPE ST_Closer_Recipe :
+	STRUCT
+		Length				: LREAL;
+//		LeftAxis			: ST_AxisRecipe;
+//		RightAxis			: ST_AxisRecipe;
+		CylinderExtendTime	: LREAL;
+		CylinderRetractTime : LREAL;
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

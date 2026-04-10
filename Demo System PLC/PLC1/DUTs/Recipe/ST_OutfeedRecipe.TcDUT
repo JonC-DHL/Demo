@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <DUT Name="ST_OutfeedRecipe" Id="{b014eca8-5e88-4bdb-90f0-9feda9c4e779}">
+    <Declaration><![CDATA[TYPE ST_OutfeedRecipe :
+	STRUCT
+		Length				: LREAL;
+//		LeftAxis			: ST_AxisRecipe;
+//		RightAxis			: ST_AxisRecipe;
+		CylinderExtendTime	: LREAL;
+		CylinderRetractTime : LREAL;
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

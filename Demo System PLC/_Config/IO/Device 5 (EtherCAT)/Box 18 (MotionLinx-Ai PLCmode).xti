@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4024.68" ClassName="CFlbTermDef" SubType="9099">
+	<Box Id="18" BoxType="9099">
+		<Name>__FILENAME__</Name>
+		<ImageId>114</ImageId>
+		<EtherCAT SlaveType="2" PdiType="#x0c80" MboxDataLinkLayer="true" StateMBoxPolling="true" CycleMBoxPollingTime="0" CoeType="47" FoeType="1" VendorId="#x00000049" ProductCode="#x00000491" RevisionNo="#x0000000e" InfoDataAddr="true" PortPhys="17" MaxSlotCount="256" MaxSlotGroupCount="1" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="MotionLinx-Ai PLCmode FW4.1" Desc="MotionLinx-Ai PLCmode">
+			<SyncMan>001080002600010001000000000000008000001026010000</SyncMan>
+			<SyncMan>801080002200010002000000000000008000801022010000</SyncMan>
+			<SyncMan>001118006400010003000000000000001800001164010000</SyncMan>
+			<SyncMan>001410002000010004000000000000001000001420010000</SyncMan>
+			<Fmmu>0000000000000000001100020100000001000000000000000000000000000000</Fmmu>
+			<Fmmu>0000000000000000001400010100000002000000000000000000000000000000</Fmmu>
+			<Fmmu>00000000000000000d0800010100000003000000000000000000000000000000</Fmmu>
+			<BootStrapData>0010800000118000</BootStrapData>
+			<Pdo Name="Module Inputs" Index="#x1a00" Flags="#x0000" SyncMan="3">
+				<Entry Name="AllSensors" Index="#x3000">
+					<Type>UINT</Type>
+				</Entry>
+				<Entry Name="ServoStateL" Index="#x3001">
+					<Type>USINT</Type>
+				</Entry>
+				<Entry Name="ServoStateR" Index="#x3006">
+					<Type>USINT</Type>
+				</Entry>
+				<Entry Name="PositionLeft" Index="#x3002">
+					<Type>INT</Type>
+				</Entry>
+				<Entry Name="PositionRight" Index="#x3003">
+					<Type>INT</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="Module Diagnostics" Index="#x1a01" Flags="#x0000" SyncMan="3">
+				<Entry Name="DiagnosticLeft" Index="#x3004">
+					<Type>UINT</Type>
+				</Entry>
+				<Entry Name="DiagnosticRight" Index="#x3005">
+					<Type>UINT</Type>
+				</Entry>
+				<Entry Name="SystemDiagnostic" Index="#x3013">
+					<Type>USINT</Type>
+				</Entry>
+				<Entry Name="Reserved1" Index="#x3014">
+					<Type>USINT</Type>
+				</Entry>
+				<Entry Name="Reserved2" Index="#x3015">
+					<Type>UINT</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="TxPDO2" Index="#x1a02" Flags="#x0000"/>
+			<Pdo Name="TxPDO3" Index="#x1a03" Flags="#x0000"/>
+			<Pdo Name="TxPDO4" Index="#x1a04" Flags="#x0000"/>
+			<Pdo Name="TxPDO5" Index="#x1a05" Flags="#x0000"/>
+			<Pdo Name="Motor Setup" Index="#x1600" InOut="1" Flags="#x0000" SyncMan="2">
+				<Entry Name="MDRCtrlLeft" Index="#x2000">
+					<Type>USINT</Type>
+				</Entry>
+				<Entry Name="MDRCtrlRight" Index="#x200c">
+					<Type>USINT</Type>
+				</Entry>
+				<Entry Name="SpeedLeft" Index="#x2001">
+					<Type>UINT</Type>
+				</Entry>
+				<Entry Name="SpeedRight" Index="#x2002">
+					<Type>UINT</Type>
+				</Entry>
+				<Entry Name="BrakeModeLeft" Index="#x200f">
+					<Type>USINT</Type>
+				</Entry>
+				<Entry Name="BrakeModeRight" Index="#x2010">
+					<Type>USINT</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="Motor Ramps" Index="#x1601" InOut="1" Flags="#x0000" SyncMan="2">
+				<Entry Name="AccelLeft" Index="#x2003">
+					<Type>UINT</Type>
+				</Entry>
+				<Entry Name="DecelLeft" Index="#x2004">
+					<Type>UINT</Type>
+				</Entry>
+				<Entry Name="AccelRight" Index="#x2005">
+					<Type>UINT</Type>
+				</Entry>
+				<Entry Name="DecelRight" Index="#x2006">
+					<Type>UINT</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="Servo/Periphery" Index="#x1602" InOut="1" Flags="#x0000" SyncMan="2">
+				<Entry Name="ServoCtrl" Index="#x2007">
+					<Type>UINT</Type>
+				</Entry>
+				<Entry Name="ServoLeft" Index="#x2008">
+					<Type>INT</Type>
+				</Entry>
+				<Entry Name="ServoRight" Index="#x2009">
+					<Type>INT</Type>
+				</Entry>
+				<Entry Name="WritePin2Output" Index="#x2011">
+					<Type>USINT</Type>
+				</Entry>
+				<Entry Name="ClearMotorError" Index="#x2012">
+					<Type>USINT</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="RxPDO3" Index="#x1603" InOut="1" Flags="#x0000"/>
+			<Pdo Name="RxPDO4" Index="#x1604" InOut="1" Flags="#x0000"/>
+			<Pdo Name="RxPDO5" Index="#x1605" InOut="1" Flags="#x0000"/>
+		</EtherCAT>
+	</Box>
+</TcSmItem>

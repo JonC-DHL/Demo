@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.16">
+  <DUT Name="eDriveStates" Id="{22576d59-f28f-4988-be52-c1b676537a1f}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+{attribute 'to_string'}
+TYPE eDriveStates :
+(
+	FAULT := 0,
+	FAULT_STOPPING,
+ 	AWAITING_RESET,
+	RESET,
+	DISABLED,
+	STOPPED,	
+	STOPPING,
+	STARTING,
+	RUNNING
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

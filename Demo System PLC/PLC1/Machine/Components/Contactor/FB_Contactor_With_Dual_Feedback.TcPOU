@@ -1,0 +1,229 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="FB_Contactor_With_Dual_Feedback" Id="{3e85d182-8fc9-4815-9f23-adbf894d0dd1}" SpecialFunc="None">
+    <Declaration><![CDATA[(*	This FB is used for a single output solenoid 
+	It uses the single input to say when Extended  	
+	It starts assuming retracted and the output off.
+*)
+FUNCTION_BLOCK FB_Contactor_With_Dual_Feedback EXTENDS FB_ComponentBase IMPLEMENTS I_Contactor
+VAR
+    //Output
+    Output 				AT %Q* : BOOL;
+//	FeedBackExtended	AT %I* : BOOL;	//This could be an sensor FB
+//	FeedBackRetracted	AT %I* : BOOL;	//This could be an sensor FB
+	ExtendedSensor		:FB_DigitalSensor		:= (Name := 'Sensor', DebounceMode := E_DebounceMode.SimpleFlickerFilter, DebounceTime := T#250MS, Inverted    := FALSE, SimulationInput:= FALSE, SimulationMode := E_SensorSimulationMode.InputDriven) ;		//I_DigitalSensorBase;
+	RetractedSensor		:FB_DigitalSensor		:= (Name := 'Sensor', DebounceMode := E_DebounceMode.SimpleFlickerFilter, DebounceTime := T#250MS, Inverted    := FALSE, SimulationInput:= FALSE, SimulationMode := E_SensorSimulationMode.InputDriven) ;
+
+	
+	 // List of Components
+ //   ipComponents_Init :
+  //     ARRAY[1..Parameters_PackML_Base.MAX_NO_OF_COMPONENTS] OF I_ComponentBase := [ ExtendedSensor];
+
+    // Internal variables
+    _ExtendRequest  : BOOL;
+    _RetractRequest : BOOL;
+    _Extended       : BOOL;
+    _Retracted      : BOOL;
+    _Extending      : BOOL;
+    _Retracting     : BOOL;
+    _ExtendTime     : LREAL := 1000; // Default time 1s
+    _RetractTime    : LREAL := 1000; // Default time 1s
+
+    // Timer for Extend/Retract
+    Extend_TON    : TON;
+    Retract_TON   : TON;
+    Extend_RTRIG  : R_TRIG;
+    Retract_RTRIG : R_TRIG;
+
+    //HMI 
+    Contactor_HMI : ST_Contactor_HMI;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="I_ComponentBase" Id="{5899fd43-27af-4173-a210-e4c63bd70f52}" />
+    <Folder Name="I_Contactor" Id="{990bdcf0-33b1-4040-9073-1997aaca1a08}" />
+    <Folder Name="I_CyclicFB" Id="{d1e50116-02d4-49ae-bde7-b24d8333e290}" />
+    <Method Name="CreateEvents" Id="{0b108e5d-7a77-4b6d-b5f1-d3d45be5823e}" FolderPath="I_ComponentBase\">
+      <Declaration><![CDATA[METHOD PROTECTED CreateEvents
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.CreateEvents();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CyclicLogic" Id="{6f1603bb-5922-4822-b91b-39b753ee8125}" FolderPath="I_CyclicFB\">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//IO
+ExtendedSensor();
+RetractedSensor();
+
+//One shot the requests
+Extend_RTRIG(CLK := _ExtendRequest);
+Retract_RTRIG(CLK := _RetractRequest);
+
+//Handle Extend
+IF Extend_RTRIG.Q THEN
+    Output          := TRUE;
+    _Extending      := TRUE;
+    _Retracting     := FALSE;
+    _Retracted      := FALSE;
+    _RetractRequest := FALSE;
+END_IF
+
+//Handle Retract
+IF Retract_RTRIG.Q THEN
+    Output         := FALSE;
+    _Extending     := FALSE;
+    _Retracting    := TRUE;
+    _Extended      := FALSE;
+    _ExtendRequest := FALSE;
+END_IF
+
+//Handle the time to Extend/Retract
+Extend_TON(IN := _Extending, PT := LREAL_TO_TIME(_ExtendTime));
+Retract_TON(IN := _Retracting, PT := LREAL_TO_TIME(_RetractTime));
+IF ExtendedSensor.Active THEN
+    _Extended  := TRUE;
+    _Extending := FALSE;
+END_IF
+
+IF RetractedSensor.Active THEN
+    _Retracted  := TRUE;
+    _Retracting := FALSE;
+END_IF
+
+SUPER^.CyclicLogic();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Extend" Id="{644e4fe5-aa20-4310-8c9e-76a2b7f6ae48}" FolderPath="I_Contactor\">
+      <Declaration><![CDATA[METHOD Extend]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_ExtendRequest  := TRUE;
+_RetractRequest := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Extended" Id="{d58a5c6a-9db5-4618-8007-90c04e7ee2ba}" FolderPath="I_Contactor\">
+      <Declaration><![CDATA[PROPERTY Extended : BOOL]]></Declaration>
+      <Get Name="Get" Id="{1472ebba-5811-4e68-a848-a8416b6080e7}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Extended := _Extended;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ExtendTime" Id="{5086ddd6-741e-47a5-8e37-19c0138cb6c5}" FolderPath="I_Contactor\">
+      <Declaration><![CDATA[PROPERTY ExtendTime : LREAL]]></Declaration>
+      <Get Name="Get" Id="{48cbbb1e-ad04-4afa-a7e7-bdec6dec6589}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ExtendTime := _ExtendTime;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{61327a8a-41d8-472e-9d92-580496c31817}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="HMICommunication" Id="{f79d3ada-c99b-4eb0-96db-564bccd21e93}" FolderPath="I_ComponentBase\">
+      <Declaration><![CDATA[METHOD PROTECTED HMICommunication
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.HMICommunication();
+
+//Handle the requests to extend and retract
+IF ComponentBase_HMI.Status.HMIControlAvailable THEN
+    IF Contactor_HMI.Command.Extend THEN
+        Extend();
+    ELSIF Contactor_HMI.Command.Retract THEN
+        Retract();
+    END_IF
+END_IF
+
+//Update HMI status info
+Contactor_HMI.Status.Extended    := _Extended;
+Contactor_HMI.Status.Extending   := _Extending;
+Contactor_HMI.Status.Retracted   := _Retracted;
+Contactor_HMI.Status.Retracting  := _Retracting;
+Contactor_HMI.Config.ExtendTime  := _ExtendTime;
+Contactor_HMI.Config.RetractTime := _RetractTime;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Initialize" Id="{9aeb198c-7e24-4a67-a34f-ed5eb1a7dea0}">
+      <Declaration><![CDATA[//! @summary Basic component initialization logic
+METHOD PROTECTED Initialize : BOOL;
+
+//! @description This method is called by <c>CyclicLogic()</c> as required]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//Set the Contactor to retracted
+IF Output THEN
+    _Extended  := TRUE;
+    _Retracted := FALSE;
+ELSE
+    _Extended  := FALSE;
+    _Retracted := TRUE;
+END_IF
+
+_Extending      := FALSE;
+_ExtendRequest  := FALSE;
+_Retracting     := FALSE;
+_RetractRequest := FALSE;
+
+//Call base class Initialize
+Initialize := SUPER^.Initialize();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Monitoring" Id="{f218811c-a526-488c-bc59-a00ca54bffaa}" FolderPath="I_ComponentBase\">
+      <Declaration><![CDATA[METHOD PROTECTED Monitoring
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Busy    := _Extending OR _Retracting;
+_Error   := FALSE;
+_ErrorID := 0;
+SUPER^.Monitoring();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Retract" Id="{4d0378d7-8824-4c04-94c7-496356967159}" FolderPath="I_Contactor\">
+      <Declaration><![CDATA[METHOD Retract]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_ExtendRequest  := FALSE;
+_RetractRequest := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Retracted" Id="{4ee4a385-5aeb-4173-ba98-e003e09a61c8}" FolderPath="I_Contactor\">
+      <Declaration><![CDATA[PROPERTY Retracted : BOOL]]></Declaration>
+      <Get Name="Get" Id="{401ac642-635d-4d6c-8033-6fba2d24e75f}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Retracted := _Retracted;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="RetractTime" Id="{1c8fab45-6334-49e7-87c3-cc0a66dd34a5}" FolderPath="I_Contactor\">
+      <Declaration><![CDATA[PROPERTY RetractTime : LREAL]]></Declaration>
+      <Get Name="Get" Id="{a9fd22fe-1bcf-406a-ac03-811e7b2493fc}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[RetractTime := _RetractTime;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{0c8857ec-9e83-4910-9e23-d2afd12cc671}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_RetractTime := RetractTime;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>

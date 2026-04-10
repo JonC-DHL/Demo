@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <DUT Name="ST_MotionLinxAxisRecipe" Id="{945967ad-13cc-4513-8758-7da7a9ffe14a}">
+    <Declaration><![CDATA[TYPE ST_MotionLinxAxisRecipe :
+	STRUCT
+		Velocity		: INT;
+		Acceleration	: INT;
+		Deceleration	: INT;	
+		MaxSpeed		:UINT;
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

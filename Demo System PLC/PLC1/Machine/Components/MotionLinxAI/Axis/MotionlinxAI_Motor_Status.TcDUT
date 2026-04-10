@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <DUT Name="MotionlinxAI_Motor_Status" Id="{07721bff-f139-4c81-9fb2-daf6172eeabd}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+TYPE MotionlinxAI_Motor_Status :
+(
+	MOTOR_NOT_RUNNING_BRAKED := 0 ,
+	MOTOR_NOT_RUNNING_UNBRAKED,
+	MOTOR_RUNNING_CCW,
+	MOTOR_RUNNING_CW
+
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

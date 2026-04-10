@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <DUT Name="ST_Gluer_Recipe" Id="{b50f3f83-b67e-4426-ac38-206a901bbd2f}">
+    <Declaration><![CDATA[TYPE ST_Gluer_Recipe :
+	STRUCT
+		Length				: LREAL;
+			// Data
+		SetTemperature	   : LREAL;
+		Trigger_Delay		: TIME;	
+//		LeftAxis			: ST_AxisRecipe;
+//		RightAxis			: ST_AxisRecipe;
+		CylinderExtendTime	: LREAL;
+		CylinderRetractTime : LREAL;
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

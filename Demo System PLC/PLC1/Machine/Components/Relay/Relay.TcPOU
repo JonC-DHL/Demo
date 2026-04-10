@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="Relay" Id="{ba806163-1640-4c19-8fe9-2ef896e165ee}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Relay EXTENDS FB_ComponentBase IMPLEMENTS I_Relay
+VAR
+	output AT %Q* : BOOL;
+	_Invert_Output	:BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*
+Other Diagnostics to add.
+OPEN request time - Time to open
+Close request time	- Time to Close.
+UnCommanded move?
+Duration contactor ON/OFF
+
+
+
+
+*)]]></ST>
+    </Implementation>
+    <Folder Name="I_CyclicFB" Id="{c46f6721-c5cd-4e2b-afe2-8adddd5ccb9e}" />
+    <Method Name="CyclicLogic" Id="{971a716f-ce7c-4900-aa65-dd05304fc5bc}" FolderPath="I_CyclicFB\">
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT _InitComplete THEN
+	_InitComplete := Initialize();
+	RETURN;
+END_IF
+
+
+		
+SUPER^.CyclicLogic();
+
+//Set the current alarm severity for this module
+//_CurrentAlarmSeverity := F_GetMaxSeverityRaised(Alarms := AlarmModuleAlarms, CurrentSeverity := _CurrentAlarmSeverity);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_init" Id="{aa3a3794-ff3d-4001-9573-cd7e7471d4a6}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+	bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+	Invert_Output	:BOOL;
+
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Invert_Output	:= Invert_Output;
+//_Plusled_Output	:=Plusled_Output;
+	IF _Invert_Output THEN
+		output	:=TRUE;
+	END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="OFF" Id="{0ef33f7c-3686-45ee-8172-72397b494b46}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'variable'}
+PROPERTY OFF : BOOL]]></Declaration>
+      <Get Name="Get" Id="{f13f73bc-5843-4387-9c2c-4b0b92eeda5b}">
+        <Declaration><![CDATA[{attribute 'monitoring':= 'variable'}
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[OFF := not ON;	]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ON" Id="{f77d2379-4503-4006-9e81-034cd1f8cb55}">
+      <Declaration><![CDATA[{attribute 'monitoring':= 'variable'}
+PROPERTY ON : BOOL]]></Declaration>
+      <Get Name="Get" Id="{2e1a540e-5dd6-40e5-bc26-6103963af109}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF _Invert_Output THEN
+	ON :=NOT output;	
+ELSIF NOT _Invert_Output THEN
+	ON := output;	
+END_IF]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="SwitchOff" Id="{c1f9a978-7504-4168-be62-1b5cde7fccd2}">
+      <Declaration><![CDATA[METHOD PUBLIC SwitchOff
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _Invert_Output THEN
+	output	:=TRUE;
+ELSE 
+	output	:=FALSE;
+END_IF
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SwitchOn" Id="{8c3756b9-e47e-4fcc-81d5-a8a82bebf861}">
+      <Declaration><![CDATA[METHOD PUBLIC SwitchOn
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _Invert_Output THEN
+	output	:=FALSE;
+ELSE 
+	output	:=TRUE;
+END_IF
+
+]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,591 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="FB_MotionlinxAI_Axis" Id="{84bed10e-2014-44a4-86fd-506ddbbef3d2}" SpecialFunc="None">
+    <Declaration><![CDATA[(*	
+*)
+FUNCTION_BLOCK FB_MotionlinxAI_Axis EXTENDS FB_ComponentBase //IMPLEMENTS I_MotionlinxAI_Axis
+VAR
+	//Controller Status	
+
+	_Controller_Sts	:ST_Controller_Status;
+	
+	
+	
+//Inputs
+	iServoState	AT%I* : SINT;	
+	iPosition 		AT%I* : INT;
+	iDiagnostics	AT%I* : INT;
+	
+	//Speed Limits//
+	uMaxSpeed (*AT%I**) : UINT;		//ACTION - IS this from the drive??????
+	uMinSpeed : UINT;
+
+//Output
+	oMotorControl	AT%Q* : SINT;
+	oMotorSpeed		AT%Q* : INT;
+	oMotorBrakeMode	AT%Q* : SINT := 2;
+	oMotorAccel		AT%Q* : INT;
+	oMotorDecel	AT%Q* : INT;
+	oServoPos		AT%Q* : INT;
+	//Servo Setting//	
+	bSetServo : BOOL;
+	bHomed : BOOL;
+	
+
+
+	// Internal variables
+	//Run Motor//	
+	bEnabled : BOOL;
+	bRunMotor : BOOL;
+	nRequestedSpeed : UINT;
+
+
+//	iSensors	:INT;
+	//Error Resetting//
+	//bError : BOOL;
+	tpErrorReset : TP;
+	//Motor Status//
+	eMotorStatus: MotionlinxAI_Motor_Status;
+	eErrorRecord : MotionlinxAI_Error_States;
+	eMotionlinxAIState : MotionlinxAI_States;
+	Main_Sensor	: BOOL;
+	Aux_Sensor	: BOOL;
+	
+	eError : MotionlinxAI_Error_States;
+	
+	bMotorExpected : BOOL;
+	bMotorDisconnected: BOOL;
+	
+	iPreviousPosition	:int;
+
+	// Timer for Extend/Retract
+	tonAxisStopped	:ton:=(PT:=T#0.5S);
+	bAxis_Stopped	:BOOL;
+	
+	
+	//Alarms for this module
+	MotionLinxAlarms : ARRAY[1..MOTIONLINX_AI_ALARM_COUNT] OF FB_TcAlarm;
+
+	//HMI 
+	MotionlinxAI_HMI : ST_MotionlinxAI_Axis_HMI;
+	
+	iCounter	:INT;
+	ErrorInput	:BOOL;
+END_VAR
+VAR CONSTANT
+	//reports 
+	FAULT : INT := 1;
+
+	//Alarms
+	MOTIONLINX_AI_ALARM_COUNT : INT := 10;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="I_ComponentBase" Id="{564bca5b-815b-4420-a3bf-27ca975dea8a}" />
+    <Folder Name="I_CyclicFB" Id="{e674dbf9-cf5e-458c-94b6-d3dcdd89cb73}" />
+    <Folder Name="I_MotionlinxAI_Axis" Id="{03e0a6a9-6324-40f7-9830-f10137e10bd5}" />
+    <Folder Name="Methods" Id="{4effaa14-d69c-4730-a853-b0a4a6fad1d9}" />
+    <Property Name="Acceleration" Id="{d91cb6df-d18c-43c9-aff0-8443b35bbdf5}" FolderPath="I_MotionlinxAI_Axis\">
+      <Declaration><![CDATA[PROPERTY Acceleration : int]]></Declaration>
+      <Set Name="Set" Id="{65466805-8aa0-49a3-8df9-6cdf97f534be}">
+        <Declaration><![CDATA[VAR
+
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[oMotorAccel	:= Acceleration;
+//Recipe.Axis.Acceleration := Acceleration;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Action Name="Astop" Id="{d5c43eb1-1d38-4e44-8bc2-00e2b5bb6fa6}" FolderPath="I_MotionlinxAI_Axis\">
+      <Implementation>
+        <ST><![CDATA[//oMotorLControl.0 := FALSE;
+//oMotorRControl.0 := FALSE;]]></ST>
+      </Implementation>
+    </Action>
+    <Property Name="Controller_Sts" Id="{88f38349-94a3-422a-9722-22b42b0cdd49}">
+      <Declaration><![CDATA[PROPERTY Controller_Sts : ST_Controller_Status]]></Declaration>
+      <Set Name="Set" Id="{4b928b3d-76ba-4673-b0cf-fba390a3ca23}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Controller_Sts	:=Controller_Sts;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="CreateEvents" Id="{e0f8766d-dc7c-457b-9343-3c71d71e0eda}" FolderPath="I_ComponentBase\">
+      <Declaration><![CDATA[METHOD PROTECTED CreateEvents
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Add your event creation here
+F_CreateAllEventsInClass(Alarms		:= MotionLinxAlarms,
+						 ClassSize	:= SIZEOF(TC_EVENTS.MotionlinxAI_Axis),
+						 pInitEvent := ADR(TC_EVENTS.MotionlinxAI_Axis.InitReferenceEvent),
+						 Prefix		:= Name);
+
+// Super call to base
+SUPER^.CreateEvents();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CyclicLogic" Id="{39eda1b4-62f4-459e-961e-ef10a5bb498b}" FolderPath="I_CyclicFB\">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+errorCheck();
+
+
+
+Main_Sensor	:= _Controller_Sts.Sensors.4;		//ACTION Need logic to swap sensors dependinf on input group 1 or 2 Main aux
+Aux_Sensor	:= _Controller_Sts.Sensors.0;
+
+//
+//ACTION Need logic to swap sensors dependinf on input group 1 or 2 Main aux
+
+//////////Set State//////////
+//////////Set State//////////
+IF _Error THEN
+	eMotionlinxAIState := MotionlinxAI_States.ERROR;
+ELSIF bSetServo  THEN
+	IF bHomed THEN
+		IF eMotorStatus > MotionlinxAI_Motor_Status.MOTOR_NOT_RUNNING_UNBRAKED THEN
+			eMotionlinxAIState := MotionlinxAI_States.RUNNING;
+		ELSIF eMotorStatus <= MotionlinxAI_Motor_Status.MOTOR_NOT_RUNNING_UNBRAKED  THEN
+			eMotionlinxAIState := MotionlinxAI_States.STOPPED;
+		END_IF
+	ELSE
+		eMotionlinxAIState := MotionlinxAI_States.HOMING;
+	END_IF
+ELSE
+	IF eMotorStatus > MotionlinxAI_Motor_Status.MOTOR_NOT_RUNNING_UNBRAKED  THEN
+		eMotionlinxAIState := MotionlinxAI_States.RUNNING;
+	ELSIF eMotorStatus <= MotionlinxAI_Motor_Status.MOTOR_NOT_RUNNING_UNBRAKED  THEN
+		eMotionlinxAIState := MotionlinxAI_States.STOPPED;
+	END_IF
+END_IF
+
+
+
+uMinSpeed := 15+uMaxSpeed/100;
+
+
+//////////Motor Status//////////
+IF iDiagnostics.0 AND iDiagnostics.1 THEN
+	eMotorStatus := MotionlinxAI_Motor_Status.MOTOR_NOT_RUNNING_UNBRAKED;
+ELSIF iDiagnostics.0 AND NOT iDiagnostics.1 THEN
+	eMotorStatus := MotionlinxAI_Motor_Status.MOTOR_RUNNING_CCW;
+ELSIF NOT iDiagnostics.0 AND iDiagnostics.1 THEN
+	eMotorStatus := MotionlinxAI_Motor_Status.MOTOR_RUNNING_CW;
+ELSIF NOT iDiagnostics.0 AND NOT iDiagnostics.1 THEN
+	eMotorStatus := MotionlinxAI_Motor_Status.MOTOR_NOT_RUNNING_BRAKED;
+
+END_IF;
+
+	//Bit6 Board Over Heated
+	//Bit7 Over Voltage
+	//Bit8 Overheated
+	//Bit9 Overtorque
+	//Bit 10 Shirt circuit
+	//Bit 11 Motor Not connected
+	//Bit 12 Overloaded
+	//Bit 13 Motor Stalled
+	//Bit 14 Hall sensor error
+	//Bit 15 Motor Not used.
+	
+	
+	
+//////////Stop On Disable//////////
+IF NOT bEnabled THEN
+	oMotorDecel := 500;	
+	oMotorControl.0 := FALSE;
+//ELSE
+//	oMotorDecel := 500;
+END_IF;
+
+//////////Set Speeds//////////
+oMotorSpeed := LIMIT(UINT_TO_INT(uMinSpeed),UINT_TO_INT(nRequestedSpeed),UINT_TO_INT(uMaxSpeed));
+
+tonAxisStopped(IN:= iPosition=iPreviousPosition, Q => bAxis_Stopped);
+iPreviousPosition	:= iPosition;
+
+
+//Alarms/Events
+//Generic Alarms for Testing
+//IF _Error THEN	//this cycles not always on with error!!!
+	IF eError = MotionlinxAI_Error_States.MOTOR_OVERHEATED AND NOT MotionLinxAlarms[E_MotionlinxAI_Axis.OVERHEATED].bRaised THEN
+		RaiseAlarm2Args(MotionLinxAlarms[E_MotionlinxAI_Axis.OVERHEATED], '', '');
+	ELSIF NOT (eError = MotionlinxAI_Error_States.MOTOR_OVERHEATED) AND MotionLinxAlarms[E_MotionlinxAI_Axis.OVERHEATED].bRaised THEN
+		MotionLinxAlarms[E_MotionlinxAI_Axis.OVERHEATED].Clear(0, 0);
+	END_IF
+	
+	IF eError = MotionlinxAI_Error_States.MOTOR_OVERLOADED AND NOT MotionLinxAlarms[E_MotionlinxAI_Axis.OVERLOADED].bRaised THEN
+		RaiseAlarm2Args(MotionLinxAlarms[E_MotionlinxAI_Axis.OVERLOADED], '', '');
+	ELSIF NOT (eError = MotionlinxAI_Error_States.MOTOR_OVERLOADED) AND MotionLinxAlarms[E_MotionlinxAI_Axis.OVERLOADED].bRaised THEN
+		MotionLinxAlarms[E_MotionlinxAI_Axis.OVERLOADED].Clear(0, 0);
+	END_IF
+	
+	IF eError = MotionlinxAI_Error_States.MOTOR_STALLED AND NOT MotionLinxAlarms[E_MotionlinxAI_Axis.STALLED].bRaised THEN
+		RaiseAlarm2Args(MotionLinxAlarms[E_MotionlinxAI_Axis.STALLED], '', '');
+	ELSIF NOT (eError = MotionlinxAI_Error_States.MOTOR_STALLED) AND MotionLinxAlarms[E_MotionlinxAI_Axis.STALLED].bRaised THEN
+		MotionLinxAlarms[E_MotionlinxAI_Axis.STALLED].Clear(0, 0);
+	END_IF
+	
+	IF (eError = MotionlinxAI_Error_States.MOTOR_NOT_CONNECTED OR ErrorInput) AND NOT MotionLinxAlarms[E_MotionlinxAI_Axis.NOT_CONNECTED].bRaised THEN
+		RaiseAlarm2Args(MotionLinxAlarms[E_MotionlinxAI_Axis.NOT_CONNECTED], '', '');
+	ELSIF NOT (eError = MotionlinxAI_Error_States.MOTOR_NOT_CONNECTED) and not ErrorInput AND MotionLinxAlarms[E_MotionlinxAI_Axis.NOT_CONNECTED].bRaised THEN
+		MotionLinxAlarms[E_MotionlinxAI_Axis.NOT_CONNECTED].Clear(0, 0);
+	END_IF
+
+	
+	IF eError = MotionlinxAI_Error_States.MOTOR_SHORT_CIRCUIT AND NOT MotionLinxAlarms[E_MotionlinxAI_Axis.SHORT_CIRCUIT].bRaised THEN
+		RaiseAlarm2Args(MotionLinxAlarms[E_MotionlinxAI_Axis.SHORT_CIRCUIT], '', '');
+	ELSIF NOT (eError = MotionlinxAI_Error_States.MOTOR_SHORT_CIRCUIT) AND MotionLinxAlarms[E_MotionlinxAI_Axis.SHORT_CIRCUIT].bRaised THEN
+		MotionLinxAlarms[E_MotionlinxAI_Axis.SHORT_CIRCUIT].Clear(0, 0);
+	END_IF
+	
+	//IF eError = MotionlinxAI_Error_States.MOTOR_STALLED AND NOT MotionLinxAlarms[E_MotionlinxAI_Axis.MOTOR_STALLED].bRaised THEN
+	//	RaiseAlarm2Args(MotionLinxAlarms[E_MotionlinxAI_Axis.MOTOR_STALLED], '', '');
+	//ELSIF NOT eError = MotionlinxAI_Error_States.MOTOR_STALLED AND MotionLinxAlarms[E_MotionlinxAI_Axis.MOTOR_STALLED].bRaised THEN
+	//	MotionLinxAlarms[E_MotionlinxAI_Axis.MOTOR_STALLED].Clear(0, 0);
+	//END_IF
+	
+	
+	
+//END_IF
+
+
+
+
+//Set the current alarm severity for this module
+_CurrentAlarmSeverity := F_GetMaxSeverityRaised(Alarms := MotionLinxAlarms, CurrentSeverity := _CurrentAlarmSeverity);
+
+//One shot the requests
+//Extend_RTRIG(CLK := _ExtendRequest);
+//Retract_RTRIG(CLK := _RetractRequest);
+
+////Handle Extend
+//IF Extend_RTRIG.Q THEN
+////	Output			:= TRUE;
+//	_Extending		:= TRUE;
+//	_Retracting		:= FALSE;
+//	_Retracted		:= FALSE;
+//	_RetractRequest := FALSE;
+//END_IF
+
+////Handle Retract
+//IF Retract_RTRIG.Q THEN
+////	Output		   := FALSE;
+//	_Extending	   := FALSE;
+//	_Retracting	   := TRUE;
+//	_Extended	   := FALSE;
+//	_ExtendRequest := FALSE;
+//END_IF
+
+////Handle the time to Extend/Retract
+//Extend_TON(IN := _Extending, PT := LREAL_TO_TIME(_ExtendTime));
+//Retract_TON(IN := _Retracting, PT := LREAL_TO_TIME(_RetractTime));
+//IF Extend_TON.Q THEN
+//	_Extended  := TRUE;
+//	_Extending := FALSE;
+//END_IF
+
+//IF Retract_TON.Q THEN
+//	_Retracted	:= TRUE;
+//	_Retracting := FALSE;
+//END_IF
+
+SUPER^.CyclicLogic();]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Deceleration" Id="{1a153ede-59af-4d81-b343-2a04bc992805}" FolderPath="I_MotionlinxAI_Axis\">
+      <Declaration><![CDATA[PROPERTY Deceleration : int]]></Declaration>
+      <Set Name="Set" Id="{bdadbec4-d50b-4d0a-879d-5fa57e176119}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[oMotorDecel	:= Deceleration;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="Disable" Id="{1d453f6e-3687-4412-ae4d-5e48024c3ad0}" FolderPath="I_MotionlinxAI_Axis\">
+      <Declaration><![CDATA[METHOD Disable : BOOL
+(*BRAKING MODES:
+	0 : NORMAL - HOLDS IN PLACE BY SHORTING WINDINGS
+	1 : FREE - NOT HELD IN PLACE
+	2 : SERVO - MAINTAINS POSITION BASED ON HALLS EFFECT SENSOR*)]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//oMotorDecel := 500;
+bEnabled := FALSE;
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="EmergencyStop" Id="{8591e24a-3de3-441d-a69f-a1e1e7e28cb2}" FolderPath="I_MotionlinxAI_Axis\">
+      <Declaration><![CDATA[METHOD EmergencyStop : BOOL
+(*BRAKING MODES:
+	0 : NORMAL - HOLDS IN PLACE BY SHORTING WINDINGS
+	1 : FREE - NOT HELD IN PLACE
+	2 : SERVO - MAINTAINS POSITION BASED ON HALLS EFFECT SENSOR*)]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[oMotorDecel:= 1;
+oMotorControl.0 := FALSE;
+bEnabled := FALSE;
+oMotorBrakeMode := 0;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Enable" Id="{e5af88bd-408e-4e07-8d90-41c559ff9446}" FolderPath="I_MotionlinxAI_Axis\">
+      <Declaration><![CDATA[METHOD Enable : BOOL
+VAR_INPUT
+//	Acceleration	:INT;	//Should not be here, but part of recipe
+END_VAR
+(*BRAKING MODES:
+	0 : NORMAL - HOLDS IN PLACE BY SHORTING WINDINGS
+	1 : FREE - NOT HELD IN PLACE
+	2 : SERVO - MAINTAINS POSITION BASED ON HALLS EFFECT SENSOR*)]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[bEnabled := TRUE;
+//oMotorAccel	:= Acceleration;
+//oMotorControl.0 := TRUE;
+//oMotorBrakeMode  := 2;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Enabled" Id="{584b0cad-97bc-486f-baa5-ad501022e39e}" FolderPath="I_MotionlinxAI_Axis\">
+      <Declaration><![CDATA[PROPERTY Enabled : BOOL]]></Declaration>
+      <Get Name="Get" Id="{dc9be4db-7694-42dc-a45a-bd0ea8a3eb63}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Enabled := bEnabled;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Action Name="errorCheck" Id="{5b89c9f1-6a13-405d-9c8a-b081e6c5d852}" FolderPath="I_MotionlinxAI_Axis\">
+      <Implementation>
+        <ST><![CDATA[iCounter	:= iCounter +1;
+//oClearMotorError := 0;	//Action. this goes to the contrroller and that sends the reset requests
+IF  iDiagnostics.5  THEN
+	eError := MotionlinxAI_Error_States.MOTOR_BOARD_OVERHEAT;
+(*ELSIF iDiagnosticsL.6  THEN
+	eErrorLeft := MotionlinxAI_Error_States.MOTOR_OVERVOLTAGE;
+ELSIF iDiagnosticsL.7  THEN
+	eErrorLeft := MotionlinxAI_Error_States.MOTOR_UNDERVOLTAGE;*)
+ELSIF iDiagnostics.8  THEN
+	eError := MotionlinxAI_Error_States.MOTOR_OVERHEATED;
+(*ELSIF iDiagnosticsL.9  THEN
+	eErrorLeft := MotionlinxAI_Error_States.MOTOR_MAX_TORQUE;*)
+ELSIF iDiagnostics.10  THEN
+	eError := MotionlinxAI_Error_States.MOTOR_SHORT_CIRCUIT;
+ELSIF iDiagnostics.11  THEN
+	eError := MotionlinxAI_Error_States.MOTOR_NOT_CONNECTED;
+ELSIF iDiagnostics.12  THEN
+	eError := MotionlinxAI_Error_States.MOTOR_OVERLOADED;
+ELSIF iDiagnostics.13  THEN
+	eError := MotionlinxAI_Error_States.MOTOR_STALLED;
+ELSIF iDiagnostics.14  THEN
+	eError := MotionlinxAI_Error_States.MOTOR_HALL_SENSOR;
+ELSE
+	eError := MotionlinxAI_Error_States.NO_ERROR;
+END_IF;
+
+
+
+bMotorDisconnected := eError = MotionlinxAI_Error_States.MOTOR_NOT_CONNECTED;
+
+IF eError <> MotionlinxAI_Error_States.NO_ERROR  OR eError = MotionlinxAI_Error_States.MOTOR_UNDERVOLTAGE  THEN
+	IF (bMotorDisconnected AND NOT bMotorExpected)  THEN
+		_Error := FALSE;
+	ELSE
+		_Error := TRUE;
+		eError := eError;
+	
+			
+//		IF oClearMotorError = 0 THEN
+//			oClearMotorError := 1;
+//		ELSIF oClearMotorError = 1 THEN
+//			oClearMotorError := 0;
+//		END_IF;
+	END_IF
+
+ELSE
+	_Error := FALSE;
+END_IF;]]></ST>
+      </Implementation>
+    </Action>
+    <Property Name="HasFault" Id="{97dbf5df-348c-4c25-b4a9-4d7e37e13d72}" FolderPath="I_MotionlinxAI_Axis\">
+      <Declaration><![CDATA[PROPERTY HasFault : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{95336fac-c4c0-44b6-ba08-00eb0e158768}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[HasFault := eMotionlinxAIState < MotionlinxAI_States.HOMING;// or bCommunicationsFailed; ]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="HMICommunication" Id="{249af752-b6a6-44b3-8c53-18dccc43eb48}" FolderPath="I_ComponentBase\">
+      <Declaration><![CDATA[METHOD PROTECTED HMICommunication
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.HMICommunication();
+
+//Handle the requests to extend and retract
+IF ComponentBase_HMI.Status.HMIControlAvailable THEN
+	IF MotionlinxAI_HMI.Command.Extend THEN
+//		Extend();
+	ELSIF MotionlinxAI_HMI.Command.Retract THEN
+//		Retract();
+	END_IF
+END_IF
+
+//Update HMI status info
+//Cylinder_HMI.Status.Extended	:= _Extended;
+//Cylinder_HMI.Status.Extending	:= _Extending;
+//Cylinder_HMI.Status.Retracted	:= _Retracted;
+//Cylinder_HMI.Status.Retracting	:= _Retracting;
+//Cylinder_HMI.Config.ExtendTime	:= _ExtendTime;
+//Cylinder_HMI.Config.RetractTime := _RetractTime;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Initialize" Id="{07e4833f-62d9-4f46-89f6-ec9a6c2d1480}">
+      <Declaration><![CDATA[//! @summary Basic component initialization logic
+METHOD PROTECTED Initialize : BOOL;
+
+//! @description This method is called by <c>CyclicLogic()</c> as required]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+
+
+//Set the cylinder to retracted
+//oMotorAccel	:= 500;		//From recipe value here
+//IF Output THEN
+//	_Extended  := TRUE;
+//	_Retracted := FALSE;
+//ELSE
+//	_Extended  := FALSE;
+//	_Retracted := TRUE;
+//END_IF
+
+
+
+//Call base class Initialize
+Initialize := SUPER^.Initialize();]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="IsReady" Id="{b384d1c3-b2d2-456b-9703-0b46c4cb2e78}" FolderPath="I_MotionlinxAI_Axis\">
+      <Declaration><![CDATA[PROPERTY IsReady : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{e3ebbcf6-ec46-4dbe-bfbe-160047b83ec7}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsReady := eMotionlinxAIState > MotionlinxAI_States.HOMING;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="MaxSpeed" Id="{3e716af1-c7b7-440a-84a8-8ae7c2314148}" FolderPath="I_MotionlinxAI_Axis\">
+      <Declaration><![CDATA[PROPERTY MaxSpeed : uint]]></Declaration>
+      <Set Name="Set" Id="{5819c363-d272-4380-9be4-da5affa2a8eb}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[uMaxSpeed	:= MaxSpeed;
+]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="Monitoring" Id="{35f17985-3d10-4a38-b8a2-8d66a31a369c}" FolderPath="I_ComponentBase\">
+      <Declaration><![CDATA[METHOD PROTECTED Monitoring
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Busy	 := NOT Stopped;//MotionlinxAI_Motor_Status:=3 OR MotionlinxAI_Motor_Status:=4 ;
+_Error	 := eError>0 OR eMotionlinxAIState < MotionlinxAI_States.HOMING;;
+_ErrorID := eError;
+SUPER^.Monitoring();]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="MotorDisconnected" Id="{056db5c2-f9f1-4268-a28d-dc0353d09bbb}" FolderPath="I_MotionlinxAI_Axis\">
+      <Declaration><![CDATA[PROPERTY MotorDisconnected : bool]]></Declaration>
+      <Get Name="Get" Id="{0231605c-467e-421a-b54a-25eb681f92ab}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MotorDisconnected	:= bMotorDisconnected;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="RaiseAlarm2Args" Id="{33341853-aeb8-4338-becc-5f4d98c3c5e0}" FolderPath="Methods\">
+      <Declaration><![CDATA[METHOD RaiseAlarm2Args
+VAR_IN_OUT
+	Alarm : FB_TcAlarm; //Alarm to be raised
+END_VAR
+
+VAR_INPUT
+	String_1 : STRING; //First String Parameter (The Name of this component will be applied first automatically)
+	String_2 : STRING; //Second String Parameter
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[F_RaiseAlarmWithStringParameters(Alarm	  := Alarm,
+								 String_1 := Name,
+								 String_2 := String_1,
+								 String_3 := String_2);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Start" Id="{66c34b9d-4bd7-4fcb-8bfe-152fa560519d}" FolderPath="I_MotionlinxAI_Axis\">
+      <Declaration><![CDATA[METHOD Start : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF bEnabled THEN 
+	oMotorControl.0 := TRUE;
+	oMotorBrakeMode  := 2;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Stop" Id="{1ebcc6dd-875d-4fcf-a089-89f14e84fd33}" FolderPath="I_MotionlinxAI_Axis\">
+      <Declaration><![CDATA[METHOD Stop
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[oMotorControl.0 := FALSE;
+oMotorBrakeMode := 2;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Stopped" Id="{e3cdb5b7-236b-4b6e-b047-4981e2a4591f}" FolderPath="I_MotionlinxAI_Axis\">
+      <Declaration><![CDATA[PROPERTY Stopped : bool]]></Declaration>
+      <Get Name="Get" Id="{d9788d61-7d76-4502-86e3-333f66cfe51c}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Stopped	:= bAxis_Stopped;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Velocity" Id="{cbbaa72b-1a2b-4384-8fee-2c5410c0803a}" FolderPath="I_MotionlinxAI_Axis\">
+      <Declaration><![CDATA[PROPERTY Velocity : int]]></Declaration>
+      <Set Name="Set" Id="{aa82b17e-d9c0-4f75-83d6-d86f4db44c95}">
+        <Declaration><![CDATA[VAR
+
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[nRequestedSpeed	:= Velocity;
+//Recipe.Axis.Acceleration := Acceleration;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>

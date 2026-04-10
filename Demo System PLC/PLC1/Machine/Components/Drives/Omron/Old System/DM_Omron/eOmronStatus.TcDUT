@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.16">
+  <DUT Name="eOmronStatus" Id="{034058ed-e85f-4cb3-9a04-72e9b0405b23}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+{attribute 'to_string'}
+TYPE eOmronStatus :
+(
+	DRIVE_DISCONNECTED := 0,
+ 	FAULT := 1,
+	CONNECTION_ERROR := 2,
+	WARNING := 3,
+	AWATING_RESET := 4,
+	READY := 5,
+	RUNNING := 6
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

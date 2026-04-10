@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <DUT Name="ST_LabelerRecipe" Id="{b481ce3f-8f0e-45c8-a330-fd8874c99800}">
+    <Declaration><![CDATA[TYPE ST_LabelerRecipe :
+	STRUCT
+		Length				: LREAL;
+//		LeftAxis			: ST_AxisRecipe;
+//		RightAxis			: ST_AxisRecipe;
+		CylinderExtendTime	: LREAL;
+		CylinderRetractTime : LREAL;
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

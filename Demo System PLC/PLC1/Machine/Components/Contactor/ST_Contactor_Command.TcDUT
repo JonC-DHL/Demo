@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <DUT Name="ST_Contactor_Command" Id="{0c7d6c0d-a0bd-4799-9292-0baa64105ad1}">
+    <Declaration><![CDATA[TYPE ST_Contactor_Command :
+    STRUCT
+        Extend  : BOOL;
+        Retract : BOOL;
+    END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

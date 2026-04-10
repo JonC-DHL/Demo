@@ -1,0 +1,174 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="Relay_Pulse" Id="{6ea7d138-739e-4be0-ba74-2cceb551273b}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Relay_Pulse IMPLEMENTS I_Relay
+VAR
+	output AT %Q* : BOOL;
+	bFirstRun	:BOOL :=true;	//Only ran for 1 cycle
+	rt_ON	:r_trig;
+	rt_OFF	:r_trig;
+	_SwitchOn		:BOOL;
+	_SwitchOff	:BOOL;
+	tp_Pulse	:TP;
+	_tPulseTime	:TIME:=T#500MS;
+	_Invert_Output	:BOOL;
+	ft_Output	:f_trig;
+	_ON	:BOOL;
+	_OFF	:BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="Cyclic" Id="{08b4e57d-2ba1-488c-bcdc-f04376dee502}">
+      <Declaration><![CDATA[METHOD Cyclic
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+tp_Pulse(in:=_SwitchOn OR _SwitchOff, pt:=_tPulseTime(*, Q => output*));
+//ft_Output (CLK:= output);
+IF _Invert_Output THEN
+	output	:= NOT tp_Pulse.Q;
+	ft_Output (CLK:= NOT output);
+ELSE
+	output	:= tp_Pulse.Q;
+	ft_Output (CLK:= output);
+END_IF
+
+IF ft_Output.Q THEN
+	_SwitchOn		:=FALSE;
+	_SwitchOff	:=FALSE;
+	rt_ON(CLK:=FALSE);
+	rt_OFF(CLK:=FALSE);
+	
+END_IF
+
+IF _Invert_Output THEN
+	IF _SwitchOn AND NOT output THEN
+		_ON		:= TRUE;
+		_Off	:=FALSE;
+	ELSIF 
+		_SwitchOff AND NOT output THEN
+		_ON		:= FALSE;
+		_Off	:=TRUE;
+	END_IF
+ELSE
+	IF _SwitchOn AND output THEN
+		_ON		:= TRUE;
+		_Off	:=FALSE;
+	ELSIF 
+		_SwitchOff AND output THEN
+		_ON		:= FALSE;
+		_Off	:=TRUE;
+	END_IF
+END_IF
+
+
+
+(*IF _Invert_Output THEN
+	IF _SwitchOn AND NOT output THEN
+		_ON		:= FALSE;
+		_Off	:=TRUE;
+	ELSIF 
+		_SwitchOff AND NOT output THEN
+		_ON		:= TRUE;
+		_Off	:=FALSE;
+	END_IF
+ELSE
+	IF _SwitchOn AND output THEN
+		_ON		:= TRUE;
+		_Off	:=FALSE;
+	ELSIF 
+		_SwitchOff AND output THEN
+		_ON		:= FALSE;
+		_Off	:=TRUE;
+	END_IF
+END_IF*)]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_init" Id="{7125af0b-d75d-42a8-8523-6f9be1cde140}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+	bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+	Invert_Output	:BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Invert_Output	:= Invert_Output;
+IF  bFirstRun THEN 
+	IF _Invert_Output THEN
+		output	:=TRUE;
+	END_IF
+	_OFF	:= TRUE;
+	bFirstRun	:= FALSE;
+END_IF
+//_Plusled_Output	:=Plusled_Output;
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="OFF" Id="{e3bb997f-5007-4689-9ede-015cdfa40fb5}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'variable'}
+PROPERTY OFF : BOOL]]></Declaration>
+      <Get Name="Get" Id="{2082df6d-d37b-4391-863f-0976a008c605}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[OFF	:= _OFF;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ON" Id="{bc100b29-7da6-4383-8bbe-4754ca1c0c55}">
+      <Declaration><![CDATA[PROPERTY ON : Bool]]></Declaration>
+      <Get Name="Get" Id="{13425ece-dbe6-475d-8867-f7fda1fe2c36}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ON := _ON;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="SwitchOff" Id="{5cbd763c-d966-4eac-a178-f9c1f4ebac20}">
+      <Declaration><![CDATA[METHOD PUBLIC SwitchOff
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[rt_OFF(CLK:= TRUE);
+IF rt_OFF.Q THEN
+	_SwitchOff	:=TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SwitchOn" Id="{e27e3c12-2049-4767-b1be-bc0872054aa9}">
+      <Declaration><![CDATA[METHOD PUBLIC SwitchOn
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[rt_ON(CLK:= TRUE);
+IF rt_ON.Q THEN
+	_SwitchOn	:=TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="tPulseTime" Id="{099b23ce-f19d-4c26-9a77-d59ccc4cc0b4}">
+      <Declaration><![CDATA[PROPERTY tPulseTime : Time]]></Declaration>
+      <Set Name="Set" Id="{ad477605-de94-4f17-92db-8ad66ba44762}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_tPulseTime	:= tPulseTime;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>

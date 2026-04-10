@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <Itf Name="I_Relay" Id="{1984f853-e95e-423b-9025-6b27d33236a2}">
+    <Declaration><![CDATA[INTERFACE I_Relay
+]]></Declaration>
+    <Property Name="OFF" Id="{3aca75fc-66c8-46cc-b214-83b1a558c941}">
+      <Declaration><![CDATA[PROPERTY OFF : BOOL]]></Declaration>
+      <Get Name="Get" Id="{614ecfae-0fa7-4b03-9620-7b227ea452a0}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="ON" Id="{7650aa09-582d-4c9d-b217-946c5c288ab3}">
+      <Declaration><![CDATA[PROPERTY ON : Bool]]></Declaration>
+      <Get Name="Get" Id="{b340d491-20a3-4347-8461-e4635301f5ab}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="SwitchOff" Id="{b10429bb-49f0-4f17-aaf3-788ec25870b0}">
+      <Declaration><![CDATA[METHOD PUBLIC SwitchOff
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="SwitchOn" Id="{3276d0af-d3c0-4e0a-b76c-ed8c33774338}">
+      <Declaration><![CDATA[METHOD PUBLIC SwitchOn
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

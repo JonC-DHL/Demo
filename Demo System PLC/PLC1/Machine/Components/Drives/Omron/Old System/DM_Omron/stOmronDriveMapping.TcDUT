@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.16">
+  <DUT Name="stOmronDriveMapping" Id="{dac9ae5f-c624-46e5-a471-787dd85520e9}">
+    <Declaration><![CDATA[TYPE stOmronDriveMapping :
+STRUCT
+	
+	//Inputs
+	inInputTerminal AT %I* : UINT;
+	inMotorCurrent AT %I* : UINT;	
+	inFinTemp AT %I* : UINT;
+	inStatus AT %I* : UINT;
+	inOutputFrequency AT %I* : UINT;	
+	ibWcState AT %I* : BOOL;
+	
+	inPulse AT %I* : UINT; // not used 
+
+	inErrorCode AT %I* : UINT;  // NOT used 
+	inErrorSubCode AT %I* : UINT; // not used 
+	inSTOActive  	AT %I* : BOOL; // not mapped 
+		
+	//Outputs
+	onCommand AT %Q* : UINT;
+	onFrequencyRef AT %Q* : UINT;
+	onAccelTime AT %Q* : UINT;
+	onDecelTime AT %Q* : UINT;
+			
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

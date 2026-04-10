@@ -1,0 +1,437 @@
+<?xml version="1.0"?>
+<TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4024.68">
+	<DataTypes>
+		<DataType>
+			<Name GUID="{293E98ED-62EF-D5B9-999E-70A384956D89}" Namespace="SPT_Diagnostic" AutoDeleteType="true">ST_SafetyStateDiag</Name>
+			<BitSize>24</BitSize>
+			<SubItem>
+				<Name>State</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>Diag</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+				<Comment><![CDATA[ **NOT PRESENT ON AND/OR FBs ** For components with USINT as Diag connection, connect first 8 Bit of UINT Diag. Inherited FB is evaluating correct length.]]></Comment>
+				<BitSize>16</BitSize>
+				<BitOffs>8</BitOffs>
+			</SubItem>
+			<Properties>
+				<Property>
+					<Name>pack_mode</Name>
+					<Value>1</Value>
+				</Property>
+			</Properties>
+		</DataType>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-000000000041}" TcBaseType="true" HideSubItems="true" CName="AmsNetId">AMSNETID</Name>
+			<BitSize>48</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000001}">BYTE</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>6</Elements>
+			</ArrayInfo>
+			<Format>
+				<Printf>%d.%d.%d.%d.%d.%d</Printf>
+				<Parameter>[0]</Parameter>
+				<Parameter>[1]</Parameter>
+				<Parameter>[2]</Parameter>
+				<Parameter>[3]</Parameter>
+				<Parameter>[4]</Parameter>
+				<Parameter>[5]</Parameter>
+			</Format>
+		</DataType>
+		<DataType>
+			<Name GUID="{D138CEF2-514B-E0D3-468C-60A8005D07B2}" IecBaseType="true" AutoDeleteType="true">ARRAY [0..9] OF WORD</Name>
+			<BitSize>160</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000004}">WORD</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>10</Elements>
+			</ArrayInfo>
+		</DataType>
+	</DataTypes>
+	<Project ProjectGUID="{2126A66F-FE8A-4C96-83E4-B39377416EDB}" TargetNetId="192.168.100.70.1.1" Target64Bit="true" AutoPrioManagement="true" ShowHideConfigurations="#x106">
+		<System>
+			<Settings>
+				<IoIdleTask Priority="6"/>
+			</Settings>
+			<Licenses>
+				<Target>
+					<ManualSelect>{BDCC0070-42D5-49AE-ABF1-1D4434813D60}</ManualSelect>
+				</Target>
+			</Licenses>
+			<Tasks>
+				<Task Id="3" Priority="10" CycleTime="100000" AmsPort="350" AdtTasks="true">
+					<Name>PlcTask</Name>
+				</Task>
+			</Tasks>
+			<TypeSystem>
+				<AdditionalTmcFile Name="VFFSDemo" File="PLC1\Machine\Events\VFFSDemo.tmc"/>
+			</TypeSystem>
+		</System>
+		<Motion>
+			<NC>
+				<SafTask Priority="4" CycleTime="20000" AmsPort="501" IoAtBegin="true" SafTaskInfo="256">
+					<Name>NC-Task 1 SAF</Name>
+					<Vars VarGrpType="1" InsertType="1">
+						<Name>Inputs</Name>
+					</Vars>
+					<Vars VarGrpType="2" InsertType="1">
+						<Name>Outputs</Name>
+					</Vars>
+					<Image Id="1" AddrType="1" ImageType="1">
+						<Name>Image</Name>
+					</Image>
+				</SafTask>
+				<SvbTask Priority="8" CycleTime="100000" AmsPort="511">
+					<Name>NC-Task 1 SVB</Name>
+				</SvbTask>
+				<Axis File="Unwind.xti" Id="4"/>
+				<Axis File="Seal.xti" Id="5"/>
+				<Axis File="Pull 1.xti" Id="6"/>
+				<Axis File="Pull 2.xti" Id="7"/>
+			</NC>
+		</Motion>
+		<Plc>
+			<Project GUID="{0E250E61-BC3B-478D-8CD8-ACAB8830117A}" Name="PLC1" PrjFilePath="PLC1\PLC1.plcproj" TmcFilePath="PLC1\PLC1.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" CopyTmcToTarget="true" CopyTpyToTarget="false" SymbolicMapping="true">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PLC1\PLC1.tmc" TmcHash="{51B12C6E-660C-60D5-933A-7E031D26DB2F}">
+					<Name>PLC1 Instance</Name>
+					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
+					<Vars VarGrpType="1">
+						<Name>PlcTask Inputs</Name>
+						<Var>
+							<Name>MAIN.Machine.Safety_SubModule.Reset_PB.HardwareInput</Name>
+							<Comment><![CDATA[ Hardware input bit from the physical sensor]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Safety_SubModule.SafetyGroup_IO.InfoData</Name>
+							<Type GUID="{293E98ED-62EF-D5B9-999E-70A384956D89}" Namespace="SPT_Diagnostic">ST_SafetyStateDiag</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Safety_SubModule.SafetyGroup_ESTOP.InfoData</Name>
+							<Type GUID="{293E98ED-62EF-D5B9-999E-70A384956D89}" Namespace="SPT_Diagnostic">ST_SafetyStateDiag</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Safety_SubModule.SafetyOutput.InfoData</Name>
+							<Type GUID="{293E98ED-62EF-D5B9-999E-70A384956D89}" Namespace="SPT_Diagnostic">ST_SafetyStateDiag</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Safety_SubModule.SafetyInput.InfoData</Name>
+							<Type GUID="{293E98ED-62EF-D5B9-999E-70A384956D89}" Namespace="SPT_Diagnostic">ST_SafetyStateDiag</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Safety_SubModule.SafetyEstop.InfoData</Name>
+							<Type GUID="{293E98ED-62EF-D5B9-999E-70A384956D89}" Namespace="SPT_Diagnostic">ST_SafetyStateDiag</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Systems_SubModule.Diagnostics.EtherCatMasterX001.EtherCatMaster.AmsNetID</Name>
+							<Type GUID="{18071995-0000-0000-0000-000000000041}">AMSNETID</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Systems_SubModule.Diagnostics.EtherCatMasterX001.EtherCatMaster.DevID</Name>
+							<Type>UINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Systems_SubModule.Diagnostics.EtherCatMasterX001.EtherCatMaster.DevState</Name>
+							<Type>UINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Systems_SubModule.Diagnostics.EtherCatMasterX001.EtherCatMaster.ChangeCount</Name>
+							<Type>UINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Systems_SubModule.Diagnostics.EtherCatMasterX001.EtherCatMaster.SlaveCount</Name>
+							<Type>UINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Systems_SubModule.Diagnostics.EtherCatMasterX001.EtherCatMaster.CfgSlaveCount</Name>
+							<Type>UINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Systems_SubModule.Diagnostics.EtherCatMasterX001.FrmXWcState</Name>
+							<Comment><![CDATA[ link to task related ethercat frame state (Frm2WcState)]]></Comment>
+							<Type GUID="{D138CEF2-514B-E0D3-468C-60A8005D07B2}">ARRAY [0..9] OF WORD</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_1.Axis.iServoState</Name>
+							<Comment><![CDATA[Inputs]]></Comment>
+							<Type>SINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_1.Axis.iPosition</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_1.Axis.iDiagnostics</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_1.Sensor.HardwareInput</Name>
+							<Comment><![CDATA[ Hardware input bit from the physical sensor]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Outfeed.Axis.iServoState</Name>
+							<Comment><![CDATA[Inputs]]></Comment>
+							<Type>SINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Outfeed.Axis.iPosition</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Outfeed.Axis.iDiagnostics</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Outfeed.Sensor.HardwareInput</Name>
+							<Comment><![CDATA[ Hardware input bit from the physical sensor]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Diverter_MotionlinxAI_Controller.iSensors</Name>
+							<Comment><![CDATA[Inputs]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Diverter_MotionlinxAI_Controller.iSysDiagnostics</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Diverter_MotionlinxAI_Controller.bWCState</Name>
+							<Comment><![CDATA[0 is Data Valid, 1 is Data Invalid]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Diverter_MotionlinxAI_Controller.bInputToggle</Name>
+							<Type>BOOL</Type>
+						</Var>
+					</Vars>
+					<Vars VarGrpType="2" AreaNo="1">
+						<Name>PlcTask Outputs</Name>
+						<Var>
+							<Name>MAIN.Machine.Safety_SubModule.Safty_Reset_Pulse_Out.output</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Safety_SubModule.SafetyGroupAutoReset.Reset</Name>
+							<Comment><![CDATA[ Reset Bit to connecto to Safety]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Safety_SubModule.SafetyGroup_IO.Run</Name>
+							<Comment><![CDATA[ Safety Group Connections]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Safety_SubModule.SafetyGroup_ESTOP.Run</Name>
+							<Comment><![CDATA[ Safety Group Connections]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Safety_SubModule.SafetyReset.Reset</Name>
+							<Comment><![CDATA[ Reset Bit to connecto to Safety]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_1.Axis.oMotorControl</Name>
+							<Comment><![CDATA[Output]]></Comment>
+							<Type>SINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_1.Axis.oMotorSpeed</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_1.Axis.oMotorBrakeMode</Name>
+							<Type>SINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_1.Axis.oMotorAccel</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_1.Axis.oMotorDecel</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_1.Axis.oServoPos</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Outfeed.Axis.oMotorControl</Name>
+							<Comment><![CDATA[Output]]></Comment>
+							<Type>SINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Outfeed.Axis.oMotorSpeed</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Outfeed.Axis.oMotorBrakeMode</Name>
+							<Type>SINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Outfeed.Axis.oMotorAccel</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Outfeed.Axis.oMotorDecel</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Outfeed.Axis.oServoPos</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Diverter_MotionlinxAI_Controller.oServoControl</Name>
+							<Comment><![CDATA[	Drive_1_Left	  : FB_MotionlinxAI_Axis (Main_Sensor	:= iSensors.4, Aux_Sensor	:= iSensors.0 ):= (Name := 'Left Drive 1');
+	Drive_2_Right	  : FB_MotionlinxAI_Axis (Main_Sensor	:= iSensors.6, Aux_Sensor	:= iSensors.2 ):= (Name := 'Right Drive 2');
+Output]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Diverter_MotionlinxAI_Controller.oSetPin2Out</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Diverter_MotionlinxAI_Controller.oClearMotorError</Name>
+							<Type>BYTE</Type>
+						</Var>
+					</Vars>
+					<UnrestoredVarLinks ImportTime="2022-09-12T17:25:06">
+						<OwnerA Name="InputDst" Prefix="TIPC^PLC1^PLC1 Instance" Type="1">
+							<OwnerB Name="TINC^NC-Task 1 SAF^Axes^Pull 2">
+								<Link VarA="MAIN.fbMachine.fbPullWheels.RightPullWheel.BasicAxis._Axis.NcToPlc" TypeA="MC.NCTOPLC_AXIS_REF" InOutA="0" GuidA="{10036166-C9D3-404B-BDD3-323034AAA7F4}" VarB="Outputs^ToPlc" RestoreInfo="ANotFound"/>
+							</OwnerB>
+						</OwnerA>
+						<OwnerA Name="OutputSrc" Prefix="TIPC^PLC1^PLC1 Instance" Type="2">
+							<OwnerB Name="TINC^NC-Task 1 SAF^Axes^Pull 2">
+								<Link VarA="MAIN.fbMachine.fbPullWheels.RightPullWheel.BasicAxis._Axis.PlcToNc" TypeA="MC.PLCTONC_AXIS_REF" InOutA="1" GuidA="{63A84524-72E3-41C8-BEAB-4CCE44690A13}" VarB="Inputs^FromPlc" RestoreInfo="ANotFound"/>
+							</OwnerB>
+						</OwnerA>
+					</UnrestoredVarLinks>
+					<UnrestoredVarLinks ImportTime="2022-09-13T17:31:31">
+						<OwnerA Name="InputDst" Prefix="TIPC^PLC1^PLC1 Instance" Type="1">
+							<OwnerB Name="TINC^NC-Task 1 SAF^Axes^Pull 1">
+								<Link VarA="MAIN.VFFSDemo.fbPullWheels.LeftPullWheel.BasicSlaveAxis._Axis.NcToPlc" TypeA="MC.NCTOPLC_AXIS_REF" InOutA="0" GuidA="{10036166-C9D3-404B-BDD3-323034AAA7F4}" VarB="Outputs^ToPlc" RestoreInfo="ANotFound"/>
+							</OwnerB>
+							<OwnerB Name="TINC^NC-Task 1 SAF^Axes^Pull 2">
+								<Link VarA="MAIN.VFFSDemo.fbPullWheels.RightPullWheel.BasicSlaveAxis._Axis.NcToPlc" TypeA="MC.NCTOPLC_AXIS_REF" InOutA="0" GuidA="{10036166-C9D3-404B-BDD3-323034AAA7F4}" VarB="Outputs^ToPlc" RestoreInfo="ANotFound"/>
+							</OwnerB>
+							<OwnerB Name="TINC^NC-Task 1 SAF^Axes^Seal">
+								<Link VarA="MAIN.VFFSDemo.fbSealer.SealerAxis.BasicAxis._Axis.NcToPlc" TypeA="MC.NCTOPLC_AXIS_REF" InOutA="0" GuidA="{10036166-C9D3-404B-BDD3-323034AAA7F4}" VarB="Outputs^ToPlc" RestoreInfo="ANotFound"/>
+							</OwnerB>
+						</OwnerA>
+						<OwnerA Name="OutputSrc" Prefix="TIPC^PLC1^PLC1 Instance" Type="2">
+							<OwnerB Name="TINC^NC-Task 1 SAF^Axes^Pull 1">
+								<Link VarA="MAIN.VFFSDemo.fbPullWheels.LeftPullWheel.BasicSlaveAxis._Axis.PlcToNc" TypeA="MC.PLCTONC_AXIS_REF" InOutA="1" GuidA="{63A84524-72E3-41C8-BEAB-4CCE44690A13}" VarB="Inputs^FromPlc" RestoreInfo="ANotFound"/>
+							</OwnerB>
+							<OwnerB Name="TINC^NC-Task 1 SAF^Axes^Pull 2">
+								<Link VarA="MAIN.VFFSDemo.fbPullWheels.RightPullWheel.BasicSlaveAxis._Axis.PlcToNc" TypeA="MC.PLCTONC_AXIS_REF" InOutA="1" GuidA="{63A84524-72E3-41C8-BEAB-4CCE44690A13}" VarB="Inputs^FromPlc" RestoreInfo="ANotFound"/>
+							</OwnerB>
+							<OwnerB Name="TINC^NC-Task 1 SAF^Axes^Seal">
+								<Link VarA="MAIN.VFFSDemo.fbSealer.SealerAxis.BasicAxis._Axis.PlcToNc" TypeA="MC.PLCTONC_AXIS_REF" InOutA="1" GuidA="{63A84524-72E3-41C8-BEAB-4CCE44690A13}" VarB="Inputs^FromPlc" RestoreInfo="ANotFound"/>
+							</OwnerB>
+						</OwnerA>
+					</UnrestoredVarLinks>
+					<UnrestoredVarLinks ImportTime="2022-09-19T16:04:22">
+						<OwnerA Name="InputDst" Prefix="TIPC^PLC1^PLC1 Instance" Type="1">
+							<OwnerB Name="TINC^NC-Task 1 SAF^Axes^Unwind">
+								<Link VarA="MAIN.VFFSDemo.Unwind.Axis.BasicSlaveAxis._Axis.NcToPlc" TypeA="MC.NCTOPLC_AXIS_REF" InOutA="0" GuidA="{10036166-C9D3-404B-BDD3-323034AAA7F4}" VarB="Outputs^ToPlc" RestoreInfo="ANotFound"/>
+							</OwnerB>
+						</OwnerA>
+						<OwnerA Name="OutputSrc" Prefix="TIPC^PLC1^PLC1 Instance" Type="2">
+							<OwnerB Name="TINC^NC-Task 1 SAF^Axes^Unwind">
+								<Link VarA="MAIN.VFFSDemo.Unwind.Axis.BasicSlaveAxis._Axis.PlcToNc" TypeA="MC.PLCTONC_AXIS_REF" InOutA="1" GuidA="{63A84524-72E3-41C8-BEAB-4CCE44690A13}" VarB="Inputs^FromPlc" RestoreInfo="ANotFound"/>
+							</OwnerB>
+						</OwnerA>
+					</UnrestoredVarLinks>
+					<Contexts>
+						<Context>
+							<Id>0</Id>
+							<Name>PlcTask</Name>
+							<ManualConfig>
+								<OTCID>#x02010030</OTCID>
+							</ManualConfig>
+							<Priority>10</Priority>
+							<CycleTime>10000000</CycleTime>
+						</Context>
+					</Contexts>
+					<TaskPouOids>
+						<TaskPouOid Prio="10" OTCID="#x08502001"/>
+					</TaskPouOids>
+				</Instance>
+			</Project>
+		</Plc>
+		<Safety>
+			<Project File="TwinSAFE Project.xti"/>
+		</Safety>
+		<Io>
+			<Device File="Device 2 (RT-Ethernet Adapter) DO NOT DELETE.xti" Id="2"/>
+			<Device File="Device 5 (EtherCAT).xti" Id="5"/>
+		</Io>
+	</Project>
+	<Mappings>
+		<MappingInfo Identifier="{00000000-2001-0850-0020-500850000403}" Id="#x02030020"/>
+		<MappingInfo Identifier="{00000000-2001-0850-0020-500861000403}" Id="#x02030030"/>
+		<MappingInfo Identifier="{03040050-0050-0304-5000-040350000403}" Id="#x02030010" Watchdog="04000000040000000400000004000000"/>
+		<OwnerA Name="TIPC^PLC1^PLC1 Instance">
+			<OwnerB Name="TIID^Device 5 (EtherCAT)">
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Systems_SubModule.Diagnostics.EtherCatMasterX001.EtherCatMaster.AmsNetID" VarB="InfoData^AmsNetId"/>
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Systems_SubModule.Diagnostics.EtherCatMasterX001.EtherCatMaster.CfgSlaveCount" VarB="InfoData^CfgSlaveCount"/>
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Systems_SubModule.Diagnostics.EtherCatMasterX001.EtherCatMaster.ChangeCount" VarB="InfoData^ChangeCount"/>
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Systems_SubModule.Diagnostics.EtherCatMasterX001.EtherCatMaster.DevID" VarB="InfoData^DevId"/>
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Systems_SubModule.Diagnostics.EtherCatMasterX001.EtherCatMaster.DevState" VarB="Inputs^DevState"/>
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Systems_SubModule.Diagnostics.EtherCatMasterX001.EtherCatMaster.SlaveCount" VarB="Inputs^SlaveCount"/>
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Systems_SubModule.Diagnostics.EtherCatMasterX001.FrmXWcState[0]" VarB="Inputs^Frm0State"/>
+			</OwnerB>
+			<OwnerB Name="TIID^Device 5 (EtherCAT)^Box 18 (MotionLinx-Ai PLCmode)">
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Diverter_MotionlinxAI_Controller.bInputToggle" VarB="WcState^InputToggle"/>
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Diverter_MotionlinxAI_Controller.bWCState" VarB="WcState^WcState"/>
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Diverter_MotionlinxAI_Controller.iSensors" VarB="Module Inputs^AllSensors"/>
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Diverter_MotionlinxAI_Controller.iSysDiagnostics" VarB="Module Diagnostics^SystemDiagnostic"/>
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Outfeed.Axis.iDiagnostics" VarB="Module Diagnostics^DiagnosticRight"/>
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Outfeed.Axis.iPosition" VarB="Module Inputs^PositionRight"/>
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Outfeed.Axis.iServoState" VarB="Module Inputs^ServoStateR"/>
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Station_1.Axis.iDiagnostics" VarB="Module Diagnostics^DiagnosticLeft"/>
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Station_1.Axis.iPosition" VarB="Module Inputs^PositionLeft"/>
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Station_1.Axis.iServoState" VarB="Module Inputs^ServoStateL"/>
+				<Link VarA="PlcTask Outputs^MAIN.Machine.Diverter_MotionlinxAI_Controller.oClearMotorError" VarB="Servo/Periphery^ClearMotorError"/>
+				<Link VarA="PlcTask Outputs^MAIN.Machine.Diverter_MotionlinxAI_Controller.oServoControl" VarB="Servo/Periphery^ServoCtrl"/>
+				<Link VarA="PlcTask Outputs^MAIN.Machine.Diverter_MotionlinxAI_Controller.oSetPin2Out" VarB="Servo/Periphery^WritePin2Output"/>
+				<Link VarA="PlcTask Outputs^MAIN.Machine.Outfeed.Axis.oMotorAccel" VarB="Motor Ramps^AccelRight"/>
+				<Link VarA="PlcTask Outputs^MAIN.Machine.Outfeed.Axis.oMotorBrakeMode" VarB="Motor Setup^BrakeModeRight"/>
+				<Link VarA="PlcTask Outputs^MAIN.Machine.Outfeed.Axis.oMotorControl" VarB="Motor Setup^MDRCtrlRight"/>
+				<Link VarA="PlcTask Outputs^MAIN.Machine.Outfeed.Axis.oMotorDecel" VarB="Motor Ramps^DecelRight"/>
+				<Link VarA="PlcTask Outputs^MAIN.Machine.Outfeed.Axis.oMotorSpeed" VarB="Motor Setup^SpeedRight"/>
+				<Link VarA="PlcTask Outputs^MAIN.Machine.Outfeed.Axis.oServoPos" VarB="Servo/Periphery^ServoRight"/>
+				<Link VarA="PlcTask Outputs^MAIN.Machine.Station_1.Axis.oMotorAccel" VarB="Motor Ramps^AccelLeft"/>
+				<Link VarA="PlcTask Outputs^MAIN.Machine.Station_1.Axis.oMotorBrakeMode" VarB="Motor Setup^BrakeModeLeft"/>
+				<Link VarA="PlcTask Outputs^MAIN.Machine.Station_1.Axis.oMotorControl" VarB="Motor Setup^MDRCtrlLeft"/>
+				<Link VarA="PlcTask Outputs^MAIN.Machine.Station_1.Axis.oMotorDecel" VarB="Motor Ramps^DecelLeft"/>
+				<Link VarA="PlcTask Outputs^MAIN.Machine.Station_1.Axis.oMotorSpeed" VarB="Motor Setup^SpeedLeft"/>
+				<Link VarA="PlcTask Outputs^MAIN.Machine.Station_1.Axis.oServoPos" VarB="Servo/Periphery^ServoLeft"/>
+			</OwnerB>
+			<OwnerB Name="TIID^Device 5 (EtherCAT)^Term 2 (EK1100)^Term 6 (EL6900)">
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Safety_SubModule.SafetyEstop.InfoData^Diag" VarB="TwinSAFE Group Info Data^TwinSafeGroup_Estop Info Data^Diag"/>
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Safety_SubModule.SafetyEstop.InfoData^State" VarB="TwinSAFE Group Info Data^TwinSafeGroup_Estop Info Data^State"/>
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Safety_SubModule.SafetyGroup_ESTOP.InfoData^Diag" VarB="Function Block Info Data^TwinSafeGroup_Estop.ESTOP_Circuit.FBEstop1 Info Data^Diag"/>
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Safety_SubModule.SafetyGroup_ESTOP.InfoData^State" VarB="Function Block Info Data^TwinSafeGroup_Estop.ESTOP_Circuit.FBEstop1 Info Data^State"/>
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Safety_SubModule.SafetyGroup_IO.InfoData^Diag" VarB="TwinSAFE Group Info Data^TwinSafeGroup_IO Info Data^Diag"/>
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Safety_SubModule.SafetyGroup_IO.InfoData^State" VarB="TwinSAFE Group Info Data^TwinSafeGroup_IO Info Data^State"/>
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Safety_SubModule.SafetyInput.InfoData^Diag" VarB="Connection Info Data^Message_5 Info Data^Diag"/>
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Safety_SubModule.SafetyInput.InfoData^State" VarB="Connection Info Data^Message_5 Info Data^State"/>
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Safety_SubModule.SafetyOutput.InfoData^Diag" VarB="Connection Info Data^Message_7 Info Data^Diag"/>
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Safety_SubModule.SafetyOutput.InfoData^State" VarB="Connection Info Data^Message_7 Info Data^State"/>
+				<Link VarA="PlcTask Outputs^MAIN.Machine.Safety_SubModule.SafetyGroup_ESTOP.Run" VarB="StandardOutputs^Standard In Var 14"/>
+				<Link VarA="PlcTask Outputs^MAIN.Machine.Safety_SubModule.SafetyGroup_IO.Run" VarB="StandardOutputs^Standard In Var 4"/>
+				<Link VarA="PlcTask Outputs^MAIN.Machine.Safety_SubModule.Safty_Reset_Pulse_Out.output" VarB="StandardOutputs^Standard In Var 12"/>
+				<Link VarA="PlcTask Outputs^MAIN.Machine.Safety_SubModule.Safty_Reset_Pulse_Out.output" VarB="StandardOutputs^Standard In Var 3"/>
+			</OwnerB>
+		</OwnerA>
+	</Mappings>
+</TcSmProject>

@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <Itf Name="I_Drive_Type_1_Controller" Id="{fea85449-4abf-4c82-91ef-68f80e7d266e}">
+    <Declaration><![CDATA[INTERFACE I_Drive_Type_1_Controller]]></Declaration>
+  </Itf>
+</TcPlcObject>

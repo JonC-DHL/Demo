@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <DUT Name="MotionlinxAI_States" Id="{5d7c5f3b-88e6-45cb-b371-b963b0a81774}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE MotionlinxAI_States :
+(
+	ERROR := 0,
+	HOMING,
+	STOPPED,
+	RUNNING
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.16">
+  <POU Name="FB_BLINKER_PLAY" Id="{7166fcf4-3e5d-4f13-a240-7e340887848c}" SpecialFunc="None">
+    <Declaration><![CDATA[//*******************************************************************************************************************************
+//Function block :  FB_BLINKER Blinks output after a pulse
+//*******************************************************************************************************************************
+FUNCTION_BLOCK FB_BLINKER_PLAY
+VAR_INPUT
+       bStartPulser  : BOOL;
+       tTimeDelayON  : TIME;
+       tTimeDelayOFF : TIME;
+	   tTimeGap : TIME;
+	   nNoOfBlinks : INT;
+END_VAR
+
+VAR_OUTPUT
+       bPulseComplete : BOOL;
+END_VAR
+
+VAR
+       ofTimer : TON;
+       onTimer : TON;
+	   signalTimer : TP;
+	   ftSignal : F_TRIG;
+	   gapTimer : TP;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[signalTimer(IN := bStartPulser AND NOT gapTimer.Q, PT := (tTimeDelayON+tTimeDelayOFF)*nNoOfBlinks);
+
+ftSignal(CLK := signalTimer.Q);
+
+gapTimer(IN := ftSignal.Q, PT := tTimeGap);
+
+IF signalTimer.Q THEN
+       ofTimer(IN := NOT onTimer.Q, PT := tTimeDelayON);
+
+       IF ofTimer.Q THEN
+              bPulseComplete := FALSE;
+              onTimer(IN := TRUE, PT := tTimeDelayOFF);
+       ELSE
+              bPulseComplete := TRUE;
+              onTimer(IN := FALSE);
+       END_IF
+ELSE
+       bPulseComplete := FALSE;
+       ofTimer(IN := FALSE);
+       onTimer(IN := FALSE);
+END_IF
+]]></ST>
+    </Implementation>
+    <LineIds Name="FB_BLINKER_PLAY">
+      <LineId Id="3" Count="20" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

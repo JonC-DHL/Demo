@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <DUT Name="ST_Contactor_HMI" Id="{68e606df-c44a-4278-8523-c23f349863d2}">
+    <Declaration><![CDATA[TYPE ST_Contactor_HMI :
+    STRUCT
+        Config  : ST_Contactor_Config;
+        Command : ST_Contactor_Command;
+        Status  : ST_Contactor_Status;
+    END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

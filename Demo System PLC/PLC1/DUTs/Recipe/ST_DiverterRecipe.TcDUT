@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <DUT Name="ST_DiverterRecipe" Id="{ffcc541f-e6d6-432c-a7b4-bba82c61c850}">
+    <Declaration><![CDATA[TYPE ST_DiverterRecipe :
+	STRUCT
+		Length				: LREAL;
+//		LeftAxis			: ST_AxisRecipe;
+//		RightAxis			: ST_AxisRecipe;
+		CylinderExtendTime	: LREAL;
+		CylinderRetractTime : LREAL;
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>
