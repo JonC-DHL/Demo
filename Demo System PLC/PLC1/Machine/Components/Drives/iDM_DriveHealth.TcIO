@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.16">
+  <Itf Name="iDM_DriveHealth" Id="{fcb5f53a-de9a-4459-8915-1d4c6680bd48}">
+    <Declaration><![CDATA[INTERFACE iDM_DriveHealth
+]]></Declaration>
+    <Method Name="Disable" Id="{0a7cca81-e8cf-4a5f-bde0-ccd9352d9e9c}">
+      <Declaration><![CDATA[METHOD Disable : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="Enable" Id="{1b8f1800-5961-4994-a5dc-4bd60308b993}">
+      <Declaration><![CDATA[METHOD Enable : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="FaultLocation" Id="{bd616e79-31c8-4788-8227-3a8af4566b61}">
+      <Declaration><![CDATA[PROPERTY FaultLocation : STRING(50)]]></Declaration>
+      <Get Name="Get" Id="{841784e1-86f2-41f3-a77d-83e598e2c01c}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="HasFault" Id="{0d4baedf-1bc0-4914-8cdf-7f8c7cd7f777}">
+      <Declaration><![CDATA[PROPERTY HasFault : BOOL]]></Declaration>
+      <Get Name="Get" Id="{cadfc129-9100-42d1-8b40-e61b84bd35af}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="IsReady" Id="{486b553b-168e-4191-88a6-86601dd17b47}">
+      <Declaration><![CDATA[PROPERTY IsReady : BOOL]]></Declaration>
+      <Get Name="Get" Id="{4fefba3a-51f9-4e3b-a03e-224f986d0e9e}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="IsRunning" Id="{2e7d3f9f-a409-4733-85cd-9d9dfcb594a3}">
+      <Declaration><![CDATA[PROPERTY IsRunning : BOOL]]></Declaration>
+      <Get Name="Get" Id="{b145d479-34fa-45b2-aee1-144c7c6c12bd}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="Reset" Id="{9f0533d5-aa48-4501-99fb-f112d3854da0}">
+      <Declaration><![CDATA[METHOD Reset : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

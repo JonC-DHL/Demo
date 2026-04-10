@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4024.68" ClassName="CDevEtherCATDef" SubType="111">
+<TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4024.71" ClassName="CDevEtherCATDef" SubType="111">
 	<Device Id="5" DevType="111" DevFlags="#x0003" AmsPort="28677" AmsNetId="192.168.100.70.6.1" RemoteName="Device 5 (EtherCAT)" InfoImageId="6">
 		<Name>__FILENAME__</Name>
 		<AddressInfo>

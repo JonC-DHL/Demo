@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4024.68">
+<TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4024.71">
 	<DataTypes>
 		<DataType>
 			<Name GUID="{293E98ED-62EF-D5B9-999E-70A384956D89}" Namespace="SPT_Diagnostic" AutoDeleteType="true">ST_SafetyStateDiag</Name>
@@ -52,7 +52,7 @@
 			</ArrayInfo>
 		</DataType>
 	</DataTypes>
-	<Project ProjectGUID="{2126A66F-FE8A-4C96-83E4-B39377416EDB}" TargetNetId="192.168.100.70.1.1" Target64Bit="true" AutoPrioManagement="true" ShowHideConfigurations="#x106">
+	<Project ProjectGUID="{2126A66F-FE8A-4C96-83E4-B39377416EDB}" TargetNetId="192.168.100.70.1.1" AutoPrioManagement="true" ShowHideConfigurations="#x106">
 		<System>
 			<Settings>
 				<IoIdleTask Priority="6"/>
@@ -96,7 +96,7 @@
 		</Motion>
 		<Plc>
 			<Project GUID="{0E250E61-BC3B-478D-8CD8-ACAB8830117A}" Name="PLC1" PrjFilePath="PLC1\PLC1.plcproj" TmcFilePath="PLC1\PLC1.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" CopyTmcToTarget="true" CopyTpyToTarget="false" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PLC1\PLC1.tmc" TmcHash="{51B12C6E-660C-60D5-933A-7E031D26DB2F}">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PLC1\PLC1.tmc" TmcHash="{31260314-70C5-5E44-81BB-B59DFDE3E6A5}">
 					<Name>PLC1 Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="1">
@@ -174,6 +174,60 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
+							<Name>MAIN.Machine.Station_2.Axis.iServoState</Name>
+							<Comment><![CDATA[Inputs]]></Comment>
+							<Type>SINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_2.Axis.iPosition</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_2.Axis.iDiagnostics</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_2.Sensor.HardwareInput</Name>
+							<Comment><![CDATA[ Hardware input bit from the physical sensor]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_3.Axis.iServoState</Name>
+							<Comment><![CDATA[Inputs]]></Comment>
+							<Type>SINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_3.Axis.iPosition</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_3.Axis.iDiagnostics</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_3.Sensor.HardwareInput</Name>
+							<Comment><![CDATA[ Hardware input bit from the physical sensor]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_4.Axis.iServoState</Name>
+							<Comment><![CDATA[Inputs]]></Comment>
+							<Type>SINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_4.Axis.iPosition</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_4.Axis.iDiagnostics</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_4.Sensor.HardwareInput</Name>
+							<Comment><![CDATA[ Hardware input bit from the physical sensor]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
 							<Name>MAIN.Machine.Outfeed.Axis.iServoState</Name>
 							<Comment><![CDATA[Inputs]]></Comment>
 							<Type>SINT</Type>
@@ -188,6 +242,24 @@
 						</Var>
 						<Var>
 							<Name>MAIN.Machine.Outfeed.Sensor.HardwareInput</Name>
+							<Comment><![CDATA[ Hardware input bit from the physical sensor]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Robot.Axis.iServoState</Name>
+							<Comment><![CDATA[Inputs]]></Comment>
+							<Type>SINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Robot.Axis.iPosition</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Robot.Axis.iDiagnostics</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Robot.Sensor.HardwareInput</Name>
 							<Comment><![CDATA[ Hardware input bit from the physical sensor]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
@@ -262,6 +334,81 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
+							<Name>MAIN.Machine.Station_2.Axis.oMotorControl</Name>
+							<Comment><![CDATA[Output]]></Comment>
+							<Type>SINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_2.Axis.oMotorSpeed</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_2.Axis.oMotorBrakeMode</Name>
+							<Type>SINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_2.Axis.oMotorAccel</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_2.Axis.oMotorDecel</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_2.Axis.oServoPos</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_3.Axis.oMotorControl</Name>
+							<Comment><![CDATA[Output]]></Comment>
+							<Type>SINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_3.Axis.oMotorSpeed</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_3.Axis.oMotorBrakeMode</Name>
+							<Type>SINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_3.Axis.oMotorAccel</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_3.Axis.oMotorDecel</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_3.Axis.oServoPos</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_4.Axis.oMotorControl</Name>
+							<Comment><![CDATA[Output]]></Comment>
+							<Type>SINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_4.Axis.oMotorSpeed</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_4.Axis.oMotorBrakeMode</Name>
+							<Type>SINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_4.Axis.oMotorAccel</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_4.Axis.oMotorDecel</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Station_4.Axis.oServoPos</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
 							<Name>MAIN.Machine.Outfeed.Axis.oMotorControl</Name>
 							<Comment><![CDATA[Output]]></Comment>
 							<Type>SINT</Type>
@@ -284,6 +431,31 @@
 						</Var>
 						<Var>
 							<Name>MAIN.Machine.Outfeed.Axis.oServoPos</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Robot.Axis.oMotorControl</Name>
+							<Comment><![CDATA[Output]]></Comment>
+							<Type>SINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Robot.Axis.oMotorSpeed</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Robot.Axis.oMotorBrakeMode</Name>
+							<Type>SINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Robot.Axis.oMotorAccel</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Robot.Axis.oMotorDecel</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.Machine.Robot.Axis.oServoPos</Name>
 							<Type>INT</Type>
 						</Var>
 						<Var>

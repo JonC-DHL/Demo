@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.16">
   <POU Name="FB_Omron_Inv" Id="{1f5cda4b-8c9e-495c-9cbf-e32b31d9573a}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FB_Omron_Inv EXTENDS FB_ComponentBase
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Omron_Inv EXTENDS FB_ComponentBase IMPLEMENTS iDM_DriveHealth
 VAR
 	// Data
 	_SetTemperature	   : LREAL;
@@ -11,25 +11,107 @@ VAR
 	_Heat AT %Q* : BOOL;
 
 	// Other items
-	TempUpdate	 : TON;
-	_InTempRange : BOOL;
+	RequestedState : eDriveStates	:= eDriveStates.AWAITING_RESET;	
+	DriveState : eDriveStates 		:= eDriveStates.FAULT;
+
+	bEnabled : BOOL;
+	bInitReversed : BOOL;
+	bError : BOOL;
+	
+	
+	eDeviceStatus : eOmronStatus;
+	
+	bRunningForward : BOOL;
+	bRunningReverse : BOOL;
+	bFault : BOOL;
+	bWarning : BOOL;
+	bRemoteEnabled : BOOL;
+	bFrequencyMatching : BOOL;
+	bConnectionError : BOOL;
+	bECDisconnected : BOOL;
+	
+	blinkErrorAck : FB_BLINKER_PLAY;
+	
+	tpErrorReset : TP;
+	bResetReq : BOOL;
+	
+	sDriveName : STRING(50);
+	tonFailedStartTimeout : TON;
+	bResetTried: BOOL;
+	
+	
+//	TempUpdate	 : TON;
+//	_InTempRange : BOOL;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
     <Folder Name="I_ComponentBase" Id="{036e2951-221f-432b-806a-55d1520966ba}" />
     <Folder Name="I_CyclicFB" Id="{0ba0ab25-9c32-4537-8f9a-d985458c36e5}" />
-    <Folder Name="I_SealBar" Id="{c82a40de-4317-48a4-aebf-f7596bbe1a82}" />
-    <Property Name="ActualTemperature" Id="{4dfc088b-1c67-4477-a4bb-36a1c1cb570b}" FolderPath="I_SealBar\">
-      <Declaration><![CDATA[PROPERTY ActualTemperature : LREAL]]></Declaration>
-      <Get Name="Get" Id="{dbbe3ef7-19de-4a5c-83ae-3f248337df5b}">
-        <Declaration><![CDATA[VAR
+    <Folder Name="I_Omron_Axis" Id="{c82a40de-4317-48a4-aebf-f7596bbe1a82}" />
+    <Action Name="aInputMapping" Id="{71f983bd-d03d-48e8-8561-3f3c3aed0abd}" FolderPath="I_CyclicFB\">
+      <Implementation>
+        <ST><![CDATA[bDI1 := stDeviceMapping.inInputTerminal.2;
+bDI2 := stDeviceMapping.inInputTerminal.3;
+bDI3 := stDeviceMapping.inInputTerminal.4;
+bDI4 := stDeviceMapping.inInputTerminal.5;
+bDI5 := stDeviceMapping.inInputTerminal.6;
+bDI6 := stDeviceMapping.inInputTerminal.0; 
+bDI7 := stDeviceMapping.inInputTerminal.1;
+bEN1 := stDeviceMapping.inInputTerminal.11;
+bEN2 := stDeviceMapping.inInputTerminal.12;
+
+
+bRunningForward 	:= stDeviceMapping.inStatus.0;
+bRunningReverse 	:= stDeviceMapping.inStatus.1;
+bFault 				:= stDeviceMapping.inStatus.3;
+bWarning 			:= stDeviceMapping.inStatus.7;
+bRemoteEnabled		:= stDeviceMapping.inStatus.9;
+bFrequencyMatching	:= stDeviceMapping.inStatus.12;
+bConnectionError	:= stDeviceMapping.inStatus.15;
+bECDisconnected		:= stDeviceMapping.ibWcState;
+
+stDeviceMapping.onFrequencyRef 		:= REAL_TO_UINT(rFreq * 100.0);
+
+bDriveOK := (eDeviceStatus>=4);
+bError := eDeviceStatus < eOmronStatus.AWATING_RESET;]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="aSetStatus" Id="{5e1d199c-9d3f-42a0-af71-fea74cffbb68}" FolderPath="I_CyclicFB\">
+      <Implementation>
+        <ST><![CDATA[IF bFault AND stDeviceMapping.inSTOActive THEN
+	eDeviceStatus := eOmronStatus.AWATING_RESET;
+ELSIF bFault THEN
+	eDeviceStatus := eOmronStatus.FAULT;
+ELSIF bECDisconnected THEN
+	eDeviceStatus := eOmronStatus.DRIVE_DISCONNECTED;
+ELSIF bConnectionError THEN
+	eDeviceStatus := eOmronStatus.CONNECTION_ERROR;
+ELSIF bWarning THEN
+	eDeviceStatus := eOmronStatus.WARNING;
+ELSIF (bRunningForward OR bRunningReverse) AND bFrequencyMatching THEN
+	eDeviceStatus := eOmronStatus.RUNNING;
+ELSIF bRemoteEnabled THEN
+	eDeviceStatus := eOmronStatus.READY;
+
+END_IF]]></ST>
+      </Implementation>
+    </Action>
+    <Method Name="CreateEvents" Id="{102abde3-039c-4fb2-9376-991a4a0807d0}" FolderPath="I_ComponentBase\">
+      <Declaration><![CDATA[METHOD PROTECTED CreateEvents
+VAR_INPUT
 END_VAR]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[ActualTemperature := _ActualTemperature;]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
+      <Implementation>
+        <ST><![CDATA[// Add your event creation here
+F_CreateAllEventsInClass(Alarms		:= MotionLinxAlarms,
+						 ClassSize	:= SIZEOF(TC_EVENTS.MotionlinxAI_Axis),
+						 pInitEvent := ADR(TC_EVENTS.MotionlinxAI_Axis.InitReferenceEvent),
+						 Prefix		:= Name);
+
+// Super call to base
+SUPER^.CreateEvents();]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="CyclicLogic" Id="{347c823a-8712-4a6c-978f-6cf5d5a172b0}" FolderPath="I_CyclicFB\">
       <Declaration><![CDATA[METHOD CyclicLogic
 VAR_INPUT
@@ -44,71 +126,196 @@ SUPER^.CyclicLogic();
 
 //Read data from Parameters
 
-/// Set from the property SetTemperature := _Param[SETTEMP].Value;
+aInputMapping();
+aSetStatus();
 
-(*Temperature for simulation of temperature changes
-This will add 0.3 every 100ms to actual until it gets to Setpoint
-It will subtract 0.1 degrees every 100ms unitl it is down to setpoint or 20
-Do not set below 20 or it will not get passed resetting*)
-TempUpdate(IN := NOT TempUpdate.Q, PT := T#100MS);
-IF TempUpdate.Q THEN
-	IF _Heat AND _ActualTemperature < _SetTemperature THEN
-		_ActualTemperature := _ActualTemperature + 0.3;
-	ELSIF _ActualTemperature > 20 THEN
-		_ActualTemperature := _ActualTemperature - 0.1;
-	END_IF
-END_IF
-
-IF ABS(_SetTemperature - _ActualTemperature) < 1 THEN
-	_InTempRange := TRUE;
-ELSE
-	_InTempRange := FALSE;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Disable" Id="{51733576-a092-440d-a7bd-6868f4006402}" FolderPath="I_Omron_Axis\">
+      <Declaration><![CDATA[METHOD Disable : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[bEnabled := FALSE;
+IF DriveState >= eDriveStates.STOPPED THEN
+	RequestedState := eDriveStates.DISABLED;
 END_IF]]></ST>
       </Implementation>
     </Method>
-    <Property Name="Heat" Id="{49a8f8e0-22d9-4067-9f48-d293d8eca062}" FolderPath="I_SealBar\">
-      <Declaration><![CDATA[PROPERTY Heat : BOOL]]></Declaration>
-      <Get Name="Get" Id="{304c97aa-4a82-421b-a531-9ec8c8f422a5}">
+    <Property Name="Drive_State" Id="{180f5dad-82e1-498b-8484-b720740bbc42}" FolderPath="I_Omron_Axis\">
+      <Declaration><![CDATA[PROPERTY Drive_State : eDriveStates]]></Declaration>
+      <Get Name="Get" Id="{f04b2a6b-f072-4177-91be-c6b7079b22f7}">
         <Declaration><![CDATA[VAR
-END_VAR]]></Declaration>
+END_VAR
+]]></Declaration>
         <Implementation>
-          <ST><![CDATA[Heat := _Heat;]]></ST>
-        </Implementation>
-      </Get>
-      <Set Name="Set" Id="{d166b01f-69b5-4da5-8946-6ab0891f7a60}">
-        <Declaration><![CDATA[VAR
-END_VAR]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[_Heat := Heat;]]></ST>
-        </Implementation>
-      </Set>
-    </Property>
-    <Property Name="InTempRange" Id="{5eb4653b-19d4-438d-abd5-cb4fe858c4b4}" FolderPath="I_SealBar\">
-      <Declaration><![CDATA[PROPERTY InTempRange : BOOL]]></Declaration>
-      <Get Name="Get" Id="{2d5da934-091d-453a-90c3-251bf552c379}">
-        <Declaration><![CDATA[VAR
-END_VAR]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[InTempRange := _InTempRange;]]></ST>
+          <ST><![CDATA[Drive_State	:= DriveState;]]></ST>
         </Implementation>
       </Get>
     </Property>
-    <Property Name="SetTemperature" Id="{69bf630d-dc1b-4b5f-b65a-8acba5386b08}" FolderPath="I_SealBar\">
-      <Declaration><![CDATA[PROPERTY SetTemperature : LREAL]]></Declaration>
-      <Get Name="Get" Id="{792df11e-84ff-4764-8dca-fa225e1e2b71}">
+    <Method Name="Enable" Id="{28b8211c-4512-40a4-9c99-144320355d2f}" FolderPath="I_Omron_Axis\">
+      <Declaration><![CDATA[METHOD Enable : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[bEnabled := TRUE;
+bResetTried := FALSE;
+IF DriveState >= eDriveStates.DISABLED THEN
+	RequestedState := eDriveStates.STOPPED;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="FaultLocation" Id="{2fee8a38-4fea-47c1-8e0c-94be448d8c3c}" FolderPath="I_Omron_Axis\">
+      <Declaration><![CDATA[PROPERTY FaultLocation : STRING(50)
+]]></Declaration>
+      <Get Name="Get" Id="{2c1d3040-21b2-4b31-9e69-c1c39684a509}">
         <Declaration><![CDATA[VAR
-END_VAR]]></Declaration>
+END_VAR
+]]></Declaration>
         <Implementation>
-          <ST><![CDATA[SetTemperature := _SetTemperature;]]></ST>
+          <ST><![CDATA[FaultLocation := sDriveName;]]></ST>
         </Implementation>
       </Get>
-      <Set Name="Set" Id="{5173585b-4f3d-4f29-8125-1f6529a33731}">
-        <Declaration><![CDATA[VAR
-END_VAR]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[_SetTemperature := SetTemperature;]]></ST>
-        </Implementation>
-      </Set>
     </Property>
+    <Property Name="HasFault" Id="{e20fc962-7a91-45ca-ac92-c5c86d30c2c2}" FolderPath="I_Omron_Axis\">
+      <Declaration><![CDATA[PROPERTY HasFault : BOOL]]></Declaration>
+      <Get Name="Get" Id="{033e052a-64b0-4857-bb09-d0357140eb4d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[HasFault := DriveState = eDriveStates.FAULT;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="HMICommunication" Id="{8f26cd40-35db-4ae2-818a-c456dc6440b9}" FolderPath="I_ComponentBase\">
+      <Declaration><![CDATA[METHOD PROTECTED HMICommunication
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.HMICommunication();
+
+//Handle the requests to extend and retract
+IF ComponentBase_HMI.Status.HMIControlAvailable THEN
+	IF MotionlinxAI_HMI.Command.Extend THEN
+//		Extend();
+	ELSIF MotionlinxAI_HMI.Command.Retract THEN
+//		Retract();
+	END_IF
+END_IF
+
+//Update HMI status info
+//Cylinder_HMI.Status.Extended	:= _Extended;
+//Cylinder_HMI.Status.Extending	:= _Extending;
+//Cylinder_HMI.Status.Retracted	:= _Retracted;
+//Cylinder_HMI.Status.Retracting	:= _Retracting;
+//Cylinder_HMI.Config.ExtendTime	:= _ExtendTime;
+//Cylinder_HMI.Config.RetractTime := _RetractTime;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="IsReady" Id="{780811cb-7987-44e6-bc08-d56d0f1608ac}" FolderPath="I_Omron_Axis\">
+      <Declaration><![CDATA[PROPERTY IsReady : BOOL]]></Declaration>
+      <Get Name="Get" Id="{48a107da-0acc-46f5-9f1f-7bf2b2ed5bb5}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsReady := DriveState >= eDriveStates.DISABLED;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="IsRunning" Id="{dce4b26a-f544-47e1-b4f0-3170eb436490}" FolderPath="I_Omron_Axis\">
+      <Declaration><![CDATA[PROPERTY IsRunning : BOOL]]></Declaration>
+      <Get Name="Get" Id="{3c7fb4f9-31ed-4043-8822-5d201a37ae38}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsRunning := bFrequencyMatching;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Monitoring" Id="{6476d871-905c-47fc-9c3f-e47c04830768}" FolderPath="I_ComponentBase\">
+      <Declaration><![CDATA[METHOD PROTECTED Monitoring
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Busy	 := IsRunning;
+_Error	 := eDeviceStatus < eOmronStatus.AWATING_RESET;
+_ErrorID := ;//eError;
+SUPER^.Monitoring();]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="STO_Active" Id="{8d1988dc-7175-47f5-9aee-b8aa192860e1}">
+      <Declaration><![CDATA[PROPERTY STO_Active : bool]]></Declaration>
+      <Get Name="Get" Id="{3d088828-3760-43e6-b798-72f24a666139}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <LineIds Name="FB_Omron_Inv">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Omron_Inv.aInputMapping">
+      <LineId Id="2" Count="22" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Omron_Inv.aSetStatus">
+      <LineId Id="2" Count="14" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Omron_Inv.CreateEvents">
+      <LineId Id="3" Count="6" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Omron_Inv.CyclicLogic">
+      <LineId Id="3" Count="7" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Omron_Inv.Disable">
+      <LineId Id="3" Count="2" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Omron_Inv.Drive_State.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Omron_Inv.Enable">
+      <LineId Id="3" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Omron_Inv.FaultLocation.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Omron_Inv.HasFault.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Omron_Inv.HMICommunication">
+      <LineId Id="3" Count="16" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Omron_Inv.IsReady.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Omron_Inv.IsRunning.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Omron_Inv.Monitoring">
+      <LineId Id="3" Count="2" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Omron_Inv.STO_Active.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
   </POU>
 </TcPlcObject>

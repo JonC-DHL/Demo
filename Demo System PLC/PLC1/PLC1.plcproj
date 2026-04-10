@@ -121,22 +121,25 @@
     <Compile Include="Machine\Components\Cylinder\ST_Cylinder_Status.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Machine\Components\Drives\iDM_DriveHealth.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\Components\Drives\Omron\eDriveStates.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\Components\Drives\Omron\eOmronStatus.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\Components\Drives\Omron\FB_BLINKER_PLAY.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Machine\Components\Drives\Omron\FB_Omron_Inv.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Machine\Components\Drives\Omron\Old System\DM_Omron\DM_Omron_Drive.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Machine\Components\Drives\Omron\Old System\DM_Omron\eDriveStates.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Machine\Components\Drives\Omron\Old System\DM_Omron\eOmronStatus.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Machine\Components\Drives\Omron\Old System\DM_Omron\FB_BLINKER_PLAY.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Machine\Components\Drives\Omron\Old System\DM_Omron\stOmronDriveMapping.TcDUT">
+    <Compile Include="Machine\Components\Drives\Omron\stOmronDriveMapping.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Machine\Components\Drives\Roller Drives\2 Motor Drive\Axis\FB_Drive_Type_1_Axis.TcPOU">

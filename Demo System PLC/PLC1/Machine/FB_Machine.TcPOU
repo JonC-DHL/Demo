@@ -18,14 +18,12 @@ VAR
 	Systems_SubModule			: FB_Systems_Module	:= (Name := 'Systems', LogStateChanges := TRUE);
 
 	
-	Station_1		: FB_Station_Module:= (Name := 'Station_1', LogStateChanges := TRUE);
-//	Buffer_1		: FB_SingleDrive_Conveyor_With_Out_Sensor_And_Stopper(OutFeed_Sensor	:= Buffer_1_Outfeed_Sensor)	:= (Name := 'Buffer_1', LogStateChanges := TRUE);
-//	Buffer_2		: FB_SingleDrive_Conveyor_With_Out_Sensor(OutFeed_Sensor	:= Buffer_2_Outfeed_Sensor)	:= (Name := 'Buffer_2', LogStateChanges := TRUE);
-//	Buffer_3		: FB_SingleDrive_Conveyor_With_Out_Sensor(OutFeed_Sensor	:= Buffer_3_Outfeed_Sensor)	:= (Name := 'Buffer_3', LogStateChanges := TRUE);
-//	Buffer_4		: FB_SingleDrive_Conveyor_With_Out_Sensor(OutFeed_Sensor	:= Buffer_4_Outfeed_Sensor)	:= (Name := 'Buffer_4', LogStateChanges := TRUE);
-//	Labeler			: FB_Labeler_Module		:= (Name := 'Labeler', LogStateChanges := TRUE);
-//	Diverter		: FB_Diverter_Module(Drive_1:=Diverter_Controller_1.Drive_1_Left , Drive_2:=Diverter_Controller_1.Drive_2_Right) := (Name := 'Diverter', LogStateChanges := TRUE);
+	Station_1		: FB_Station_Module:= (Name := 'Product Infeed', LogStateChanges := TRUE);
+	Station_2		: FB_Station_Module:= (Name := 'Station_2', LogStateChanges := TRUE);
+	Station_3		: FB_Station_Module:= (Name := 'Station_3', LogStateChanges := TRUE);
+	Station_4		: FB_Station_Module:= (Name := 'Station_4', LogStateChanges := TRUE);
 	Outfeed			: FB_Station_Module:= (Name := 'Robot Outfeed Station', LogStateChanges := TRUE);
+	Robot			: FB_Station_Module:= (Name := 'UR Robot Station', LogStateChanges := TRUE);
 //	Outfeed			: FB_Robot_Outfeed_Conveyor_Module:= (Name := 'Robot Outfeed Station', LogStateChanges := TRUE);
 	
 
