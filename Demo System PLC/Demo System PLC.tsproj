@@ -96,7 +96,7 @@
 		</Motion>
 		<Plc>
 			<Project GUID="{0E250E61-BC3B-478D-8CD8-ACAB8830117A}" Name="PLC1" PrjFilePath="PLC1\PLC1.plcproj" TmcFilePath="PLC1\PLC1.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" CopyTmcToTarget="true" CopyTpyToTarget="false" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PLC1\PLC1.tmc" TmcHash="{31260314-70C5-5E44-81BB-B59DFDE3E6A5}">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PLC1\PLC1.tmc" TmcHash="{61D5CFEF-79E6-94A0-F993-0E29DE05695F}">
 					<Name>PLC1 Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="1">
@@ -228,38 +228,38 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.Machine.Outfeed.Axis.iServoState</Name>
+							<Name>MAIN.Machine.Station_5.Axis.iServoState</Name>
 							<Comment><![CDATA[Inputs]]></Comment>
 							<Type>SINT</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.Machine.Outfeed.Axis.iPosition</Name>
+							<Name>MAIN.Machine.Station_5.Axis.iPosition</Name>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.Machine.Outfeed.Axis.iDiagnostics</Name>
+							<Name>MAIN.Machine.Station_5.Axis.iDiagnostics</Name>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.Machine.Outfeed.Sensor.HardwareInput</Name>
+							<Name>MAIN.Machine.Station_5.Sensor.HardwareInput</Name>
 							<Comment><![CDATA[ Hardware input bit from the physical sensor]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.Machine.Robot.Axis.iServoState</Name>
+							<Name>MAIN.Machine.Station_6.Axis.iServoState</Name>
 							<Comment><![CDATA[Inputs]]></Comment>
 							<Type>SINT</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.Machine.Robot.Axis.iPosition</Name>
+							<Name>MAIN.Machine.Station_6.Axis.iPosition</Name>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.Machine.Robot.Axis.iDiagnostics</Name>
+							<Name>MAIN.Machine.Station_6.Axis.iDiagnostics</Name>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.Machine.Robot.Sensor.HardwareInput</Name>
+							<Name>MAIN.Machine.Station_6.Sensor.HardwareInput</Name>
 							<Comment><![CDATA[ Hardware input bit from the physical sensor]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
@@ -409,53 +409,53 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.Machine.Outfeed.Axis.oMotorControl</Name>
+							<Name>MAIN.Machine.Station_5.Axis.oMotorControl</Name>
 							<Comment><![CDATA[Output]]></Comment>
 							<Type>SINT</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.Machine.Outfeed.Axis.oMotorSpeed</Name>
+							<Name>MAIN.Machine.Station_5.Axis.oMotorSpeed</Name>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.Machine.Outfeed.Axis.oMotorBrakeMode</Name>
+							<Name>MAIN.Machine.Station_5.Axis.oMotorBrakeMode</Name>
 							<Type>SINT</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.Machine.Outfeed.Axis.oMotorAccel</Name>
+							<Name>MAIN.Machine.Station_5.Axis.oMotorAccel</Name>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.Machine.Outfeed.Axis.oMotorDecel</Name>
+							<Name>MAIN.Machine.Station_5.Axis.oMotorDecel</Name>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.Machine.Outfeed.Axis.oServoPos</Name>
+							<Name>MAIN.Machine.Station_5.Axis.oServoPos</Name>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.Machine.Robot.Axis.oMotorControl</Name>
+							<Name>MAIN.Machine.Station_6.Axis.oMotorControl</Name>
 							<Comment><![CDATA[Output]]></Comment>
 							<Type>SINT</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.Machine.Robot.Axis.oMotorSpeed</Name>
+							<Name>MAIN.Machine.Station_6.Axis.oMotorSpeed</Name>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.Machine.Robot.Axis.oMotorBrakeMode</Name>
+							<Name>MAIN.Machine.Station_6.Axis.oMotorBrakeMode</Name>
 							<Type>SINT</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.Machine.Robot.Axis.oMotorAccel</Name>
+							<Name>MAIN.Machine.Station_6.Axis.oMotorAccel</Name>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.Machine.Robot.Axis.oMotorDecel</Name>
+							<Name>MAIN.Machine.Station_6.Axis.oMotorDecel</Name>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.Machine.Robot.Axis.oServoPos</Name>
+							<Name>MAIN.Machine.Station_6.Axis.oServoPos</Name>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -566,27 +566,27 @@ Output]]></Comment>
 				<Link VarA="PlcTask Inputs^MAIN.Machine.Diverter_MotionlinxAI_Controller.bWCState" VarB="WcState^WcState"/>
 				<Link VarA="PlcTask Inputs^MAIN.Machine.Diverter_MotionlinxAI_Controller.iSensors" VarB="Module Inputs^AllSensors"/>
 				<Link VarA="PlcTask Inputs^MAIN.Machine.Diverter_MotionlinxAI_Controller.iSysDiagnostics" VarB="Module Diagnostics^SystemDiagnostic"/>
-				<Link VarA="PlcTask Inputs^MAIN.Machine.Outfeed.Axis.iDiagnostics" VarB="Module Diagnostics^DiagnosticRight"/>
-				<Link VarA="PlcTask Inputs^MAIN.Machine.Outfeed.Axis.iPosition" VarB="Module Inputs^PositionRight"/>
-				<Link VarA="PlcTask Inputs^MAIN.Machine.Outfeed.Axis.iServoState" VarB="Module Inputs^ServoStateR"/>
 				<Link VarA="PlcTask Inputs^MAIN.Machine.Station_1.Axis.iDiagnostics" VarB="Module Diagnostics^DiagnosticLeft"/>
 				<Link VarA="PlcTask Inputs^MAIN.Machine.Station_1.Axis.iPosition" VarB="Module Inputs^PositionLeft"/>
 				<Link VarA="PlcTask Inputs^MAIN.Machine.Station_1.Axis.iServoState" VarB="Module Inputs^ServoStateL"/>
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Station_5.Axis.iDiagnostics" VarB="Module Diagnostics^DiagnosticRight"/>
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Station_5.Axis.iPosition" VarB="Module Inputs^PositionRight"/>
+				<Link VarA="PlcTask Inputs^MAIN.Machine.Station_5.Axis.iServoState" VarB="Module Inputs^ServoStateR"/>
 				<Link VarA="PlcTask Outputs^MAIN.Machine.Diverter_MotionlinxAI_Controller.oClearMotorError" VarB="Servo/Periphery^ClearMotorError"/>
 				<Link VarA="PlcTask Outputs^MAIN.Machine.Diverter_MotionlinxAI_Controller.oServoControl" VarB="Servo/Periphery^ServoCtrl"/>
 				<Link VarA="PlcTask Outputs^MAIN.Machine.Diverter_MotionlinxAI_Controller.oSetPin2Out" VarB="Servo/Periphery^WritePin2Output"/>
-				<Link VarA="PlcTask Outputs^MAIN.Machine.Outfeed.Axis.oMotorAccel" VarB="Motor Ramps^AccelRight"/>
-				<Link VarA="PlcTask Outputs^MAIN.Machine.Outfeed.Axis.oMotorBrakeMode" VarB="Motor Setup^BrakeModeRight"/>
-				<Link VarA="PlcTask Outputs^MAIN.Machine.Outfeed.Axis.oMotorControl" VarB="Motor Setup^MDRCtrlRight"/>
-				<Link VarA="PlcTask Outputs^MAIN.Machine.Outfeed.Axis.oMotorDecel" VarB="Motor Ramps^DecelRight"/>
-				<Link VarA="PlcTask Outputs^MAIN.Machine.Outfeed.Axis.oMotorSpeed" VarB="Motor Setup^SpeedRight"/>
-				<Link VarA="PlcTask Outputs^MAIN.Machine.Outfeed.Axis.oServoPos" VarB="Servo/Periphery^ServoRight"/>
 				<Link VarA="PlcTask Outputs^MAIN.Machine.Station_1.Axis.oMotorAccel" VarB="Motor Ramps^AccelLeft"/>
 				<Link VarA="PlcTask Outputs^MAIN.Machine.Station_1.Axis.oMotorBrakeMode" VarB="Motor Setup^BrakeModeLeft"/>
 				<Link VarA="PlcTask Outputs^MAIN.Machine.Station_1.Axis.oMotorControl" VarB="Motor Setup^MDRCtrlLeft"/>
 				<Link VarA="PlcTask Outputs^MAIN.Machine.Station_1.Axis.oMotorDecel" VarB="Motor Ramps^DecelLeft"/>
 				<Link VarA="PlcTask Outputs^MAIN.Machine.Station_1.Axis.oMotorSpeed" VarB="Motor Setup^SpeedLeft"/>
 				<Link VarA="PlcTask Outputs^MAIN.Machine.Station_1.Axis.oServoPos" VarB="Servo/Periphery^ServoLeft"/>
+				<Link VarA="PlcTask Outputs^MAIN.Machine.Station_5.Axis.oMotorAccel" VarB="Motor Ramps^AccelRight"/>
+				<Link VarA="PlcTask Outputs^MAIN.Machine.Station_5.Axis.oMotorBrakeMode" VarB="Motor Setup^BrakeModeRight"/>
+				<Link VarA="PlcTask Outputs^MAIN.Machine.Station_5.Axis.oMotorControl" VarB="Motor Setup^MDRCtrlRight"/>
+				<Link VarA="PlcTask Outputs^MAIN.Machine.Station_5.Axis.oMotorDecel" VarB="Motor Ramps^DecelRight"/>
+				<Link VarA="PlcTask Outputs^MAIN.Machine.Station_5.Axis.oMotorSpeed" VarB="Motor Setup^SpeedRight"/>
+				<Link VarA="PlcTask Outputs^MAIN.Machine.Station_5.Axis.oServoPos" VarB="Servo/Periphery^ServoRight"/>
 			</OwnerB>
 			<OwnerB Name="TIID^Device 5 (EtherCAT)^Term 2 (EK1100)^Term 6 (EL6900)">
 				<Link VarA="PlcTask Inputs^MAIN.Machine.Safety_SubModule.SafetyEstop.InfoData^Diag" VarB="TwinSAFE Group Info Data^TwinSafeGroup_Estop Info Data^Diag"/>

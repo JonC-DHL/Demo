@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.16">
+  <DUT Name="UR_Output_Data" Id="{02f5debd-5054-481b-92b7-2f8d43e54379}">
+    <Declaration><![CDATA[TYPE UR_Output_Data :
+UNION
+	odwURRawOutputData : DWORD;
+	data : stUR_EIO_Output_Mapping;
+END_UNION
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

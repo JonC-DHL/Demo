@@ -22,8 +22,8 @@ VAR
 	Station_2		: FB_Station_Module:= (Name := 'Station_2', LogStateChanges := TRUE);
 	Station_3		: FB_Station_Module:= (Name := 'Station_3', LogStateChanges := TRUE);
 	Station_4		: FB_Station_Module:= (Name := 'Station_4', LogStateChanges := TRUE);
-	Outfeed			: FB_Station_Module:= (Name := 'Robot Outfeed Station', LogStateChanges := TRUE);
-	Robot			: FB_Station_Module:= (Name := 'UR Robot Station', LogStateChanges := TRUE);
+	Station_5			: FB_Station_Module:= (Name := 'Robot Outfeed Station', LogStateChanges := TRUE);
+	Station_6		: FB_Station_Module:= (Name := 'UR Robot Station', LogStateChanges := TRUE);
 //	Outfeed			: FB_Robot_Outfeed_Conveyor_Module:= (Name := 'Robot Outfeed Station', LogStateChanges := TRUE);
 	
 
@@ -164,7 +164,7 @@ UpdateModeTimers();
 //Call any locally generated FBs
 //Diverter_Controller_1.CyclicLogic();
 Station_1.Controller_Sts	:= Diverter_MotionlinxAI_Controller.Controller_Status;
-Outfeed.Controller_Sts	:= Diverter_MotionlinxAI_Controller.Controller_Status;
+Station_5.Controller_Sts	:= Diverter_MotionlinxAI_Controller.Controller_Status;
 
 
 //This is just to simulate some IO for alarms
@@ -244,20 +244,20 @@ END_VAR]]></Declaration>
 //		IF THIS^.Sealer.sealbar.InTempRange THEN
 			CASE SequenceState OF
 				0: //Started
-					Outfeed.ChangeState(E_PMLCommand.ePMLCommand_Start);
-					IF Outfeed.CurrentState = E_PMLState.ePMLState_Execute THEN
+					Station_5.ChangeState(E_PMLCommand.ePMLCommand_Start);
+					IF Station_5.CurrentState = E_PMLState.ePMLState_Execute THEN
 						SequenceState := SequenceState + 10;
 					END_IF
 
 
 				10:	//
-					IF Outfeed.OutFeed_Sensor.Active THEN
-						Outfeed.ChangeState(E_PMLCommand.ePMLCommand_Stop);
+					IF Station_5.OutFeed_Sensor.Active THEN
+						Station_5.ChangeState(E_PMLCommand.ePMLCommand_Stop);
 						SequenceState := SequenceState + 10;
 					END_IF
 				
 				20:
-					IF Outfeed.CurrentState = E_PMLState.ePMLState_Stopped THEN
+					IF Station_5.CurrentState = E_PMLState.ePMLState_Stopped THEN
 						SequenceState := SequenceState + 10;
 					END_IF
 
@@ -413,7 +413,7 @@ CASE DescendantSequenceState OF
 		//RegisterSubmodule(Buffer_1);
 //		RegisterSubmodule(Labeler);
 	//	RegisterSubmodule(Diverter);
-		RegisterSubmodule(Outfeed);
+		RegisterSubmodule(Station_5);
 		
 		_LogModeChanges			:= FALSE;
 		_LogStateChanges		:= FALSE;

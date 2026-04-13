@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.16">
+  <GVL Name="GVL_UR" Id="{32b6e4e0-d4d0-49ea-8687-831005aff000}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+VAR_GLOBAL
+	UR		 : fbUR;
+
+	ibURPowered				AT %I* : BOOL;
+	obURPowerOn				AT %Q* : BOOL;
+	
+	ibURProtectiveStopOK		AT %I* : BOOL;
+
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

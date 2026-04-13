@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.16">
+  <DUT Name="stUR_EIO_Safety_Bits_Mapping" Id="{d9ccb205-7445-4b93-bc39-44048df7e3d3}">
+    <Declaration><![CDATA[TYPE stUR_EIO_Safety_Bits_Mapping :
+STRUCT
+	ibNormalMode   : BIT;
+	ibReducedMode  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_2  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_3  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_4  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_5  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_6  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_7  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_8  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_9  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_10  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_11  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_12  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_13  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_14  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_15  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_16  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_17  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_18  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_19  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_20  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_21  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_22  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_23  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_24  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_25  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_26  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_27  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_28  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_29  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_30  : BIT;
+	{attribute 'hide'}
+	Reserved_UR_31  : BIT;
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

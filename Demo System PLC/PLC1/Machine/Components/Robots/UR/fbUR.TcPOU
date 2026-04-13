@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.16">
+  <POU Name="fbUR" Id="{838b86c7-1e14-4312-ba2f-220fc75622f9}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbUR
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR	
+	EIO_UR_Outputs AT %Q* : UR_Output_Data;
+	EIO_UR_Inputs  AT %I* : UR_Safety_Bits_Data;
+
+	bBrakeRelease AT %Q* : BOOL;
+	
+	rtRobotSafe			: R_TRIG;
+	
+	tpBrakeRelease		: TP;
+	
+	tonPowerUpRobot		: TON;
+	tpPowerOnPulse		: TP;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[rtRobotSafe(CLK := EIO_UR_Inputs.data.ibNormalMode OR EIO_UR_Inputs.data.ibReducedMode);
+EIO_UR_Outputs.data.obBrakeRelease := bBrakeRelease;
+
+tpBrakeRelease(IN := GVL_Safety.PALLETISER_ESTOP_OK AND NOT (GVL_HMI.ibResetButton OR GVL_HMI.bHMIResetButton), PT := T#1S, Q => bBrakeRelease);
+
+tonPowerUpRobot(IN:= NOT GVL_Palletiser.ibURPowered, PT := T#20S);
+tpPowerOnPulse(IN := tonPowerUpRobot.Q, Q => GVL_Palletiser.obURPowerOn, PT := T#0.5S);]]></ST>
+    </Implementation>
+    <LineIds Name="fbUR">
+      <LineId Id="18" Count="2" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="40" Count="1" />
+      <LineId Id="39" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

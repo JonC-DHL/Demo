@@ -214,6 +214,25 @@
     <Compile Include="Machine\Components\Relay\Relay_Pulse.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Machine\Components\Robots\GVL_UR.TcGVL">
+      <SubType>Code</SubType>
+      <LinkAlways>true</LinkAlways>
+    </Compile>
+    <Compile Include="Machine\Components\Robots\UR\fbUR.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\Components\Robots\UR\IO-Mapping\Structs\stUR_EIO_Output_Mapping.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\Components\Robots\UR\IO-Mapping\Structs\stUR_EIO_Safety_Bits_Mapping.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\Components\Robots\UR\IO-Mapping\Structs\UR_Output_Data.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Machine\Components\Robots\UR\IO-Mapping\Structs\UR_Safety_Bits_Data.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Machine\Components\Vision\Cognex\FB_A100.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -342,7 +361,11 @@
     <Folder Include="Machine\Components\MotionLinxAI\Axis" />
     <Folder Include="Machine\Components\MotionLinxAI\Axis\HMI" />
     <Folder Include="Machine\Components\MotionLinxAI\Controller" />
+    <Folder Include="Machine\Components\Robots" />
     <Folder Include="Machine\Components\Relay" />
+    <Folder Include="Machine\Components\Robots\UR" />
+    <Folder Include="Machine\Components\Robots\UR\IO-Mapping" />
+    <Folder Include="Machine\Components\Robots\UR\IO-Mapping\Structs" />
     <Folder Include="Machine\Components\Safety" />
     <Folder Include="Machine\Components\Vision" />
     <Folder Include="Machine\Components\Vision\Cognex" />
